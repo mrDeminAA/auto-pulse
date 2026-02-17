@@ -2,6 +2,7 @@ using Serilog;
 using Microsoft.EntityFrameworkCore;
 using AutoPulse.Infrastructure;
 using MassTransit;
+using AutoPulse.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,6 +97,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+// API Endpoints
+app.MapBrandsEndpoints();
+app.MapCarsEndpoints();
 
 // Миграция БД при запуске (для разработки)
 using (var scope = app.Services.CreateScope())
