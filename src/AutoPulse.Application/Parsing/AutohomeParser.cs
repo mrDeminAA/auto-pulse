@@ -17,6 +17,32 @@ public class AutohomeParser : ICarParser
     public string SourceName => "Autohome";
     public string Country => "China";
 
+    // CSS селекторы для Autohome
+    private static class Selectors
+    {
+        // Список автомобилей
+        public const string CarListContainer = ".car-list, .car-items";
+        public const string CarItem = ".car-item, .car-box, [data-type=car]";
+        public const string CarTitle = ".car-title, h3, a.title";
+        public const string CarPrice = ".price, .car-price, .red";
+        public const string CarImage = "img.car-image, .car-img img";
+        public const string CarLink = "a[href*=/car/]";
+        
+        // Детали автомобиля
+        public const string DetailTitle = "h1.title, .car-title";
+        public const string DetailPrice = ".price-box, .car-price";
+        public const string DetailYear = ".year, .car-year";
+        public const string DetailMileage = ".mileage, .car-mileage";
+        public const string DetailLocation = ".location, .dealer-address";
+        public const string DetailDealer = ".dealer-name, .seller-name";
+        
+        // Характеристики
+        public const string DetailTransmission = ".transmission, [data-item=transmission]";
+        public const string DetailEngine = ".engine, [data-item=engine]";
+        public const string DetailFuelType = ".fuel, [data-item=fuel]";
+        public const string DetailColor = ".color, [data-item=color]";
+    }
+
     public AutohomeParser(HttpClient httpClient, ILogger<AutohomeParser> logger)
     {
         _httpClient = httpClient;
@@ -39,27 +65,37 @@ public class AutohomeParser : ICarParser
 
         try
         {
+            _logger.LogInformation("Начало парсинга страницы: {Url}", url);
+
             // Загружаем и парсим HTML
             var document = await _context.OpenAsync(url, cancellationToken);
             
             // Находим все блоки с автомобилями
-            // Примечание: селекторы CSS нужно адаптировать под реальную структуру Autohome
-            var carElements = document.QuerySelectorAll(".car-item, .car-box, [data-type=car]");
+            var carElements = document.QuerySelectorAll(Selectors.CarItem);
+
+            _logger.LogInformation("Найдено {Count} элементов автомобилей", carElements.Length);
 
             foreach (var carElement in carElements)
             {
-                var car = ParseCarElement(carElement, url);
-                if (car != null)
+                try
                 {
-                    cars.Add(car);
+                    var car = ParseCarElement(carElement, url);
+                    if (car != null && !string.IsNullOrEmpty(car.BrandName))
+                    {
+                        cars.Add(car);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Ошибка при парсинге элемента автомобиля");
                 }
             }
 
-            _logger.LogInformation("Спаршено {Count} автомобилей со страницы {Url}", cars.Count, url);
+            _logger.LogInformation("Успешно спаршено {Count} автомобилей", cars.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при парсинге страницы {Url}", url);
+            _logger.LogError(ex, "Критическая ошибка при парсинге страницы {Url}", url);
             throw;
         }
 
@@ -70,6 +106,8 @@ public class AutohomeParser : ICarParser
     {
         try
         {
+            _logger.LogInformation("Парсинг деталей: {Url}", url);
+
             var document = await _context.OpenAsync(url, cancellationToken);
             
             var car = new ParsedCarData
@@ -78,48 +116,63 @@ public class AutohomeParser : ICarParser
                 Currency = "CNY"
             };
 
-            // Извлекаем данные из детальной страницы
-            // Селекторы нужно адаптировать под реальную структуру
-            
-            // Название бренда и модели
-            var title = document.QuerySelector("h1.title, .car-title")?.TextContent.Trim();
-            if (!string.IsNullOrEmpty(title))
+            // Название и бренд/модель
+            var titleElement = document.QuerySelector(Selectors.DetailTitle);
+            if (titleElement != null)
             {
-                // Парсим "Brand Model Year" из заголовка
-                var parts = title.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length >= 2)
-                {
-                    car.BrandName = parts[0];
-                    car.ModelName = string.Join(" ", parts.Skip(1).Take(parts.Length - 1));
-                }
+                var title = titleElement.TextContent.Trim();
+                ParseTitle(title, car);
             }
 
             // Цена
-            var priceElement = document.QuerySelector(".price, .car-price, span.price")?.TextContent;
-            if (!string.IsNullOrEmpty(priceElement))
+            var priceElement = document.QuerySelector(Selectors.DetailPrice);
+            if (priceElement != null)
             {
-                car.Price = ParsePrice(priceElement);
+                car.Price = ParsePrice(priceElement.TextContent);
             }
 
             // Год
-            var yearElement = document.QuerySelector(".year, .car-year")?.TextContent;
-            if (!string.IsNullOrEmpty(yearElement) && int.TryParse(yearElement, out var year))
+            var yearElement = document.QuerySelector(Selectors.DetailYear);
+            if (yearElement != null && int.TryParse(yearElement.TextContent.Trim(), out var year))
             {
                 car.Year = year;
             }
 
             // Пробег
-            var mileageElement = document.QuerySelector(".mileage, .car-mileage")?.TextContent;
-            if (!string.IsNullOrEmpty(mileageElement))
+            var mileageElement = document.QuerySelector(Selectors.DetailMileage);
+            if (mileageElement != null)
             {
-                car.Mileage = ParseMileage(mileageElement);
+                car.Mileage = ParseMileage(mileageElement.TextContent);
             }
 
-            // Изображение
-            car.ImageUrl = document.QuerySelector("img.car-image, .main-image")?.GetAttribute("src");
-
             // Расположение
-            car.Location = document.QuerySelector(".location, .dealer-location")?.TextContent.Trim();
+            var locationElement = document.QuerySelector(Selectors.DetailLocation);
+            if (locationElement != null)
+            {
+                car.Location = locationElement.TextContent.Trim();
+            }
+
+            // Дилер
+            var dealerElement = document.QuerySelector(Selectors.DetailDealer);
+            if (dealerElement != null)
+            {
+                car.DealerName = dealerElement.TextContent.Trim();
+            }
+
+            // Характеристики
+            car.Transmission = document.QuerySelector(Selectors.DetailTransmission)?.TextContent.Trim();
+            car.Engine = document.QuerySelector(Selectors.DetailEngine)?.TextContent.Trim();
+            car.FuelType = document.QuerySelector(Selectors.DetailFuelType)?.TextContent.Trim();
+            car.Color = document.QuerySelector(Selectors.DetailColor)?.TextContent.Trim();
+
+            // Изображение
+            var imgElement = document.QuerySelector("img.main-image, img[src*='car']");
+            if (imgElement != null)
+            {
+                car.ImageUrl = imgElement.GetAttribute("src");
+            }
+
+            _logger.LogInformation("Детали спаршены: {Brand} {Model}", car.BrandName, car.ModelName);
 
             return car;
         }
@@ -140,29 +193,23 @@ public class AutohomeParser : ICarParser
                 SourceUrl = baseUrl
             };
 
-            // Извлекаем данные из элемента списка
-            var titleElement = element.QuerySelector(".car-title, h3, a.title");
+            // Название/бренд
+            var titleElement = element.QuerySelector(Selectors.CarTitle);
             if (titleElement != null)
             {
                 var title = titleElement.TextContent.Trim();
-                // Парсим бренд и модель из заголовка
-                var parts = title.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length >= 2)
-                {
-                    car.BrandName = parts[0];
-                    car.ModelName = string.Join(" ", parts.Skip(1));
-                }
+                ParseTitle(title, car);
             }
 
             // Цена
-            var priceElement = element.QuerySelector(".price, .car-price");
+            var priceElement = element.QuerySelector(Selectors.CarPrice);
             if (priceElement != null)
             {
                 car.Price = ParsePrice(priceElement.TextContent);
             }
 
             // Ссылка на детальную страницу
-            var linkElement = element.QuerySelector("a[href]");
+            var linkElement = element.QuerySelector(Selectors.CarLink);
             if (linkElement != null)
             {
                 var relativeUrl = linkElement.GetAttribute("href");
@@ -173,7 +220,7 @@ public class AutohomeParser : ICarParser
             }
 
             // Изображение
-            var imgElement = element.QuerySelector("img");
+            var imgElement = element.QuerySelector(Selectors.CarImage);
             if (imgElement != null)
             {
                 car.ImageUrl = imgElement.GetAttribute("src");
@@ -183,21 +230,68 @@ public class AutohomeParser : ICarParser
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Ошибка при парсинге элемента автомобиля");
+            _logger.LogWarning(ex, "Ошибка при парсинге элемента");
             return null;
+        }
+    }
+
+    private void ParseTitle(string title, ParsedCarData car)
+    {
+        // Форматы заголовков:
+        // "BMW 5 Series 2024"
+        // "Audi A6L 2023 2.0T"
+        // "Mercedes-Benz E-Class"
+        
+        var parts = title.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        
+        if (parts.Length >= 2)
+        {
+            // Первый элемент - бренд
+            car.BrandName = parts[0];
+            
+            // Остальное - модель (ищем год)
+            var modelParts = new List<string>();
+            for (int i = 1; i < parts.Length; i++)
+            {
+                if (int.TryParse(parts[i], out var year) && year >= 1900 && year <= DateTime.UtcNow.Year + 1)
+                {
+                    car.Year = year;
+                    break;
+                }
+                modelParts.Add(parts[i]);
+            }
+            
+            car.ModelName = string.Join(" ", modelParts);
+        }
+        else if (parts.Length == 1)
+        {
+            car.BrandName = parts[0];
+            car.ModelName = "Unknown";
         }
     }
 
     private decimal ParsePrice(string priceText)
     {
+        if (string.IsNullOrEmpty(priceText))
+            return 0;
+
         // Удаляем символы валюты и пробелы
-        var clean = priceText.Replace("¥", "")
-                             .Replace("元", "")
-                             .Replace(",", "")
-                             .Replace("万", "0000") // 1 万 = 10000
-                             .Trim();
+        var clean = priceText
+            .Replace("¥", "")
+            .Replace("元", "")
+            .Replace("万", "0000") // 1 万 = 10000
+            .Replace(",", "")
+            .Replace(".", ",") // Китайский формат
+            .Trim();
 
         if (decimal.TryParse(clean, out var price))
+        {
+            return price;
+        }
+
+        // Пробуем найти число в тексте
+        var match = System.Text.RegularExpressions.Regex.Match(clean, @"[\d,]+");
+        if (match.Success && decimal.TryParse(match.Value, out price))
         {
             return price;
         }
@@ -207,11 +301,16 @@ public class AutohomeParser : ICarParser
 
     private int ParseMileage(string mileageText)
     {
+        if (string.IsNullOrEmpty(mileageText))
+            return 0;
+
         // Удаляем символы и парсим число
-        var clean = mileageText.Replace("公里", "")
-                               .Replace("km", "")
-                               .Replace(",", "")
-                               .Trim();
+        var clean = mileageText
+            .Replace("公里", "")
+            .Replace("km", "")
+            .Replace("万公里", "0000")
+            .Replace(",", "")
+            .Trim();
 
         if (int.TryParse(clean, out var mileage))
         {
