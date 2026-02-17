@@ -62,6 +62,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Health Checks
+builder.Services.AddHealthChecks();
+
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -92,6 +95,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 // Миграция БД при запуске (для разработки)
 using (var scope = app.Services.CreateScope())

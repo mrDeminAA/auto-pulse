@@ -66,6 +66,54 @@ services:
     networks:
       - autopulse-network
 
+  api:
+    build:
+      context: .
+      dockerfile: src/AutoPulse.Api/Dockerfile
+    container_name: autopulse-api
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=autopulse;Username=postgres;Password=postgres123
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
+      - Serilog__WriteTo__2__Args__serverUrl=http://seq:80
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - autopulse-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: src/AutoPulse.Worker/Dockerfile
+    container_name: autopulse-worker
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=autopulse;Username=postgres;Password=postgres123
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - autopulse-network
+
 volumes:
   postgres_data:
   redis_data:
