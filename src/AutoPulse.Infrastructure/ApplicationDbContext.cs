@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Model> Models => Set<Model>();
     public DbSet<Dealer> Dealers => Set<Dealer>();
     public DbSet<Market> Markets => Set<Market>();
+    public DbSet<DataSource> DataSources => Set<DataSource>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,6 +66,16 @@ public class ApplicationDbContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
+        // Конфигурация DataSource
+        modelBuilder.Entity<DataSource>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Country).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.BaseUrl).IsRequired().HasMaxLength(500);
+            entity.HasIndex(e => new { e.Name, e.Country }).IsUnique();
+        });
+
         // Конфигурация Car
         modelBuilder.Entity<Car>(entity =>
         {
@@ -93,7 +104,12 @@ public class ApplicationDbContext : DbContext
                   .WithMany(d => d.Cars)
                   .HasForeignKey(e => e.DealerId)
                   .OnDelete(DeleteBehavior.SetNull);
-            
+
+            entity.HasOne(e => e.DataSource)
+                  .WithMany()
+                  .HasForeignKey(e => e.DataSourceId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
             entity.HasIndex(e => e.Vin).HasFilter("Vin IS NOT NULL");
             entity.HasIndex(e => e.SourceUrl).IsUnique();
         });

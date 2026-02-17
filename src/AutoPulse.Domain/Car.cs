@@ -10,6 +10,7 @@ public class Car
     public int ModelId { get; private set; }
     public int MarketId { get; private set; }
     public int? DealerId { get; private set; }
+    public int? DataSourceId { get; private set; }
 
     // Основная информация
     public int Year { get; private set; }
@@ -41,6 +42,7 @@ public class Car
     public virtual Model Model { get; private set; } = null!;
     public virtual Market Market { get; private set; } = null!;
     public virtual Dealer? Dealer { get; private set; }
+    public virtual DataSource? DataSource { get; private set; }
 
     private Car() { }
 
@@ -124,6 +126,15 @@ public class Car
             throw new ArgumentException("ID дилера должен быть положительным", nameof(dealerId));
 
         DealerId = dealerId;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetDataSource(int? dataSourceId)
+    {
+        if (dataSourceId.HasValue && dataSourceId <= 0)
+            throw new ArgumentException("ID источника должен быть положительным", nameof(dataSourceId));
+
+        DataSourceId = dataSourceId;
         UpdatedAt = DateTime.UtcNow;
     }
 
