@@ -55,7 +55,7 @@ try
         });
     });
 
-    // Регистрация парсера для Китая (Che168) - основной на данный момент
+    // Регистрация парсера для Китая (Che168) - основной
     builder.Services.AddHttpClient<Che168Parser>(client =>
     {
         client.BaseAddress = new Uri("https://www.che168.com");
@@ -65,13 +65,6 @@ try
         client.DefaultRequestHeaders.AcceptLanguage.ParseAdd("zh-CN,zh;q=0.9,en;q=0.8");
     });
     builder.Services.AddScoped<ICarParser, Che168Parser>();
-
-    // Регистрация парсера для Autohome (альтернативный)
-    builder.Services.AddHttpClient<AutohomeParser>(client =>
-    {
-        client.BaseAddress = new Uri("https://www.autohome.com.cn");
-    });
-    // builder.Services.AddScoped<ICarParser, AutohomeParser>(); // Альтернативный парсер
 
     // Регистрация сервиса обработки данных
     builder.Services.AddScoped<IParsedDataService, ParsedDataService>();
