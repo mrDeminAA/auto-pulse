@@ -1,0 +1,40 @@
+<div class="container">
+  <h1 class="mb-4">🌍 Рынки</h1>
+
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Загрузка...</span>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger" role="alert">
+      {{ error() }}
+    </div>
+  } @else {
+    <div class="row">
+      @for (market of markets(); track trackByMarketId($index, market)) {
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ market.name }}</h5>
+              <p class="card-text">
+                <strong>Регион:</strong> {{ market.region }}<br>
+                <strong>Валюта:</strong> {{ market.currency }}
+              </p>
+              <small class="text-muted">
+                Добавлен: {{ market.createdAt | date:'dd.MM.yyyy' }}
+              </small>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="alert alert-info">
+            Рынки не найдены
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

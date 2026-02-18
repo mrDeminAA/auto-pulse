@@ -1,0 +1,105 @@
+<div class="container">
+  <h1 class="mb-4">👥 Дилеры</h1>
+
+  <!-- Фильтры -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="minRating" class="form-label">Мин. рейтинг</label>
+          <input
+            type="number"
+            id="minRating"
+            class="form-control"
+            [(ngModel)]="minRating"
+            (change)="onFilterChange()"
+            min="0"
+            max="5"
+            step="0.5"
+            placeholder="Например: 4.0"
+          >
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button class="btn btn-primary w-100" (click)="loadDealers()">
+            Применить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Загрузка...</span>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger" role="alert">
+      {{ error() }}
+    </div>
+  } @else {
+    <!-- Таблица дилеров -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Рынок</th>
+            <th>Рейтинг</th>
+            <th>Контакты</th>
+            <th>Адрес</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (dealer of dealers(); track trackByDealerId($index, dealer)) {
+            <tr>
+              <td><strong>{{ dealer.name }}</strong></td>
+              <td>{{ dealer.marketName }} ({{ dealer.marketRegion }})</td>
+              <td>
+                <span [class]="getRatingClass(dealer.rating)">
+                  ⭐ {{ dealer.rating.toFixed(1) }}
+                </span>
+              </td>
+              <td>{{ dealer.contactInfo || '—' }}</td>
+              <td>{{ dealer.address || '—' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-muted">
+                Дилеры не найдены
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Пагинация -->
+    @if (pagination().totalPages > 1) {
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="!pagination().hasPrevious">
+            <button class="page-link" (click)="onPageChange(page - 1)">
+              ← Назад
+            </button>
+          </li>
+
+          @for (pageNum of [].constructor(pagination().totalPages); track pageNum; let i = $index) {
+            <li class="page-item" [class.active]="i + 1 === page">
+              <button class="page-link" (click)="onPageChange(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+          }
+
+          <li class="page-item" [class.disabled]="!pagination().hasNext">
+            <button class="page-link" (click)="onPageChange(page + 1)">
+              Вперед →
+            </button>
+          </li>
+        </ul>
+      </nav>
+    }
+  }
+</div>
