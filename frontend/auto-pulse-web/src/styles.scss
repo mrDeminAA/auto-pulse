@@ -6,10 +6,12 @@
 // ============================================
 $primary-blue: #0056b3;           // Основной синий (гос. стиль)
 $primary-dark: #003d82;           // Тёмно-синий для ховера
+$primary-light: #e8f0fe;          // Светло-синий фон
 $accent-red: #d32f2f;             // Акцентный красный
 $accent-orange: #ff6b00;          // Оранжевый акцент
 $bg-light: #f5f7fa;               // Светлый фон
 $bg-white: #ffffff;               // Белый фон
+$bg-gray: #f0f2f5;                // Серый фон
 $border-color: #e0e3e8;           // Цвет границ
 $text-primary: #2c3e50;           // Основной текст
 $text-secondary: #6c757d;         // Вторичный текст
@@ -35,7 +37,195 @@ body {
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 0 24px;
+}
+
+// ============================================
+// Header в стиле trudvsem.ru
+// ============================================
+.header {
+  background: $bg-white;
+  border-bottom: 1px solid $border-color;
+  padding: 12px 0;
+
+  &__wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__fast-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  &__fast-link {
+    font-size: 14px;
+    color: $text-secondary;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $primary-blue;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  &__search-button {
+    padding: 8px 16px;
+    background: $bg-light;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    font-size: 14px;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $border-color;
+      color: $text-primary;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__login-button {
+    padding: 8px 20px;
+    background: $primary-blue;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $primary-dark;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+// ============================================
+// Основное меню в стиле trudvsem.ru
+// ============================================
+.main-nav {
+  background: $bg-white;
+  border-bottom: 1px solid $border-color;
+  padding: 0;
+
+  &__wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  &__logo {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    padding: 16px 0;
+    border-right: 1px solid $border-color;
+    padding-right: 24px;
+  }
+
+  &__logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: $primary-blue;
+    line-height: 1.2;
+  }
+
+  &__logo-subtitle {
+    font-size: 12px;
+    color: $text-muted;
+    margin-top: 2px;
+  }
+
+  &__list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+  }
+
+  &__item {
+    position: relative;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+
+    &:hover {
+      color: $primary-blue;
+      background: $primary-light;
+    }
+
+    &_active {
+      color: $primary-blue;
+      background: $primary-light;
+      border-bottom: 2px solid $primary-blue;
+    }
+
+    &_submenu {
+      cursor: default;
+      color: $text-secondary;
+    }
+  }
+
+  &__arrow {
+    fill: currentColor;
+    width: 12px;
+    height: 12px;
+  }
+}
+
+// ============================================
+// Footer
+// ============================================
+.footer {
+  background: $bg-white;
+  border-top: 1px solid $border-color;
+  padding: 24px 0;
+  margin-top: 48px;
+
+  &__text {
+    text-align: center;
+    color: $text-muted;
+    font-size: 14px;
+    margin: 0;
+  }
 }
 
 /* Заголовки */
@@ -167,3 +357,48 @@ h3 {
 
 .bg-light { background-color: $bg-light !important; }
 .bg-white { background-color: $bg-white !important; }
+
+// ============================================
+// Адаптивность
+// ============================================
+@media (max-width: 768px) {
+  .header {
+    &__wrapper {
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 16px;
+    }
+
+    &__fast-links {
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  .main-nav {
+    &__wrapper {
+      flex-direction: column;
+      gap: 16px;
+      padding: 0 16px;
+    }
+
+    &__logo {
+      border-right: none;
+      border-bottom: 1px solid $border-color;
+      padding-right: 0;
+      padding-bottom: 16px;
+      width: 100%;
+      align-items: center;
+    }
+
+    &__list {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    &__link {
+      padding: 12px 16px;
+    }
+  }
+}
