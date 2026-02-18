@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: autopulse
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -74,7 +74,7 @@ services:
       - "5001:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=autopulse;Username=postgres;Password=postgres123
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=autopulse;Username=postgres;Password=postgres
       - ConnectionStrings__Redis=redis:6379
       - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
       - Serilog__WriteTo__2__Args__serverUrl=http://seq:80
@@ -99,7 +99,7 @@ services:
       dockerfile: src/AutoPulse.Worker/Dockerfile
     container_name: autopulse-worker
     environment:
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=autopulse;Username=postgres;Password=postgres123
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=autopulse;Username=postgres;Password=postgres
       - ConnectionStrings__Redis=redis:6379
       - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq:5672
     depends_on:
