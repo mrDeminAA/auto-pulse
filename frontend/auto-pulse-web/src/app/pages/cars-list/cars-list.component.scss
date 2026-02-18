@@ -1,78 +1,175 @@
+// Цветовые переменные (в стиле trudvsem.ru)
+$primary-blue: #0056b3;
+$primary-dark: #003d82;
+$accent-red: #d32f2f;
+$accent-orange: #ff6b00;
+$bg-light: #f5f7fa;
+$bg-white: #ffffff;
+$border-color: #e0e3e8;
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$text-muted: #95a5a6;
+$success-green: #28a745;
+$error-red: #dc3545;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
 .cars-list-container {
-  padding: 2rem;
-  max-width: 1200px;
+  padding: 24px;
+  max-width: 1280px;
   margin: 0 auto;
+  background-color: $bg-light;
+  min-height: 100vh;
 
   h1 {
-    margin-bottom: 1.5rem;
-    color: #333;
+    margin-bottom: 24px;
+    color: $text-primary;
+    font-size: 28px;
+    font-weight: 600;
+    padding-bottom: 16px;
+    border-bottom: 2px solid $primary-blue;
   }
 
   .cars-info {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     .count {
-      font-size: 0.9rem;
-      color: #666;
-      background: #f5f5f5;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
+      font-size: 14px;
+      color: $text-secondary;
+      background: $bg-white;
+      padding: 8px 16px;
+      border-radius: $radius-sm;
+      border: 1px solid $border-color;
+      font-weight: 500;
     }
   }
 
   .cars-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
 
     .car-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 1.25rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: box-shadow 0.2s ease;
+      background: $bg-white;
+      border: 1px solid $border-color;
+      border-radius: $radius-md;
+      padding: 20px;
+      box-shadow: $shadow-sm;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: $shadow-md;
+        border-color: $primary-blue;
+        transform: translateY(-2px);
       }
 
       h3 {
-        margin: 0 0 1rem 0;
-        font-size: 1.1rem;
-        color: #333;
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-primary;
+        line-height: 1.4;
+        
+        // Ограничение в 2 строки
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .car-details {
+        flex: 1;
+        
         .year {
-          margin: 0 0 0.5rem 0;
-          color: #666;
-          font-size: 0.9rem;
+          margin: 0 0 8px 0;
+          color: $text-secondary;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          
+          &::before {
+            content: "📅";
+            margin-right: 8px;
+          }
         }
 
         .price {
-          margin: 0;
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: #2196f3;
+          margin: 12px 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: $primary-blue;
+          line-height: 1.2;
         }
       }
 
       .car-status {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e0e0e0;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid $border-color;
 
         .available {
-          color: #4caf50;
-          font-size: 0.85rem;
-          font-weight: 500;
+          color: $success-green;
+          font-size: 13px;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          background: rgba(40, 167, 69, 0.1);
+          border-radius: $radius-sm;
+          
+          &::before {
+            content: "✓";
+            margin-right: 6px;
+            font-weight: bold;
+          }
         }
 
         .unavailable {
-          color: #f44336;
-          font-size: 0.85rem;
-          font-weight: 500;
+          color: $error-red;
+          font-size: 13px;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          background: rgba(220, 53, 69, 0.1);
+          border-radius: $radius-sm;
+          
+          &::before {
+            content: "✕";
+            margin-right: 6px;
+            font-weight: bold;
+          }
+        }
+      }
+
+      .car-meta {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid $border-color;
+        font-size: 13px;
+        color: $text-muted;
+        
+        .meta-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 6px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          &::before {
+            margin-right: 8px;
+          }
         }
       }
     }
@@ -81,23 +178,62 @@
   .loading,
   .error,
   .no-cars {
-    padding: 2rem;
+    padding: 48px 24px;
     text-align: center;
-    border-radius: 8px;
+    border-radius: $radius-lg;
+    background: $bg-white;
+    border: 1px solid $border-color;
   }
 
   .loading {
-    color: #666;
-    background: #f5f5f5;
+    color: $text-secondary;
+    font-size: 16px;
+    
+    &::after {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-left: 12px;
+      border: 3px solid $border-color;
+      border-top-color: $primary-blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
   }
 
   .error {
-    color: #f44336;
-    background: #ffebee;
+    color: $error-red;
+    background: rgba(220, 53, 69, 0.05);
+    border-color: $error-red;
+    font-size: 16px;
   }
 
   .no-cars {
-    color: #666;
-    background: #f5f5f5;
+    color: $text-secondary;
+    
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .cars-list-container {
+    padding: 16px;
+    
+    h1 {
+      font-size: 24px;
+    }
+
+    .cars-grid {
+      grid-template-columns: 1fr;
+    }
   }
 }

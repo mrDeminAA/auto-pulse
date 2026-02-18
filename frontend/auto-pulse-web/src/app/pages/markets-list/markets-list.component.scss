@@ -1,7 +1,123 @@
+// Цветовые переменные (в стиле trudvsem.ru)
+$primary-blue: #0056b3;
+$primary-dark: #003d82;
+$accent-red: #d32f2f;
+$accent-orange: #ff6b00;
+$bg-light: #f5f7fa;
+$bg-white: #ffffff;
+$border-color: #e0e3e8;
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$text-muted: #95a5a6;
+$success-green: #28a745;
+$error-red: #dc3545;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
+.container {
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  background-color: $bg-light;
+  min-height: 100vh;
+}
+
+h1 {
+  margin-bottom: 24px !important;
+  color: $text-primary;
+  font-size: 28px;
+  font-weight: 600;
+  padding-bottom: 16px;
+  border-bottom: 2px solid $primary-blue;
+}
+
 .card {
-  transition: transform 0.2s;
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s ease;
+  text-decoration: none !important;
+  color: inherit;
 
   &:hover {
-    transform: translateY(-5px);
+    box-shadow: $shadow-md;
+    border-color: $primary-blue;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 16px;
+  }
+
+  .card-text {
+    font-size: 14px;
+    color: $text-secondary;
+    line-height: 1.6;
+
+    strong {
+      color: $text-primary;
+      font-weight: 500;
+    }
+  }
+
+  small {
+    font-size: 13px;
+    color: $text-muted;
+  }
+}
+
+// Спиннер загрузки
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+}
+
+// Алерты
+.alert {
+  padding: 16px 20px;
+  border-radius: $radius-md;
+  font-size: 14px;
+  border: 1px solid;
+
+  &.alert-danger {
+    background: rgba(220, 53, 69, 0.05);
+    border-color: $error-red;
+    color: $error-red;
+  }
+
+  &.alert-info {
+    background: rgba(0, 86, 179, 0.05);
+    border-color: $primary-blue;
+    color: $primary-blue;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .card {
+    margin-bottom: 16px;
   }
 }

@@ -1,14 +1,169 @@
 /* Bootstrap */
 @import "bootstrap/scss/bootstrap";
 
+// ============================================
+// Цветовая палитра в стиле trudvsem.ru
+// ============================================
+$primary-blue: #0056b3;           // Основной синий (гос. стиль)
+$primary-dark: #003d82;           // Тёмно-синий для ховера
+$accent-red: #d32f2f;             // Акцентный красный
+$accent-orange: #ff6b00;          // Оранжевый акцент
+$bg-light: #f5f7fa;               // Светлый фон
+$bg-white: #ffffff;               // Белый фон
+$border-color: #e0e3e8;           // Цвет границ
+$text-primary: #2c3e50;           // Основной текст
+$text-secondary: #6c757d;         // Вторичный текст
+$text-muted: #95a5a6;             // Приглушенный текст
+$success-green: #28a745;          // Успех/доступно
+$error-red: #dc3545;              // Ошибка/недоступно
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
 /* Global styles */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f8f9fa;
+  background-color: $bg-light;
+  color: $text-primary;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px;
 }
+
+/* Заголовки */
+h1, h2, h3, h4, h5, h6 {
+  color: $text-primary;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+/* Кнопки в стиле trudvsem.ru */
+.btn {
+  border-radius: $radius-sm;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-primary {
+  background-color: $primary-blue;
+  
+  &:hover {
+    background-color: $primary-dark;
+  }
+}
+
+.btn-danger {
+  background-color: $accent-red;
+  
+  &:hover {
+    background-color: #b71c1c;
+  }
+}
+
+.btn-outline-primary {
+  background: transparent;
+  border: 1px solid $primary-blue;
+  color: $primary-blue;
+  
+  &:hover {
+    background-color: $primary-blue;
+    color: white;
+  }
+}
+
+/* Карточки в стиле trudvsem.ru */
+.card {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $primary-blue;
+  }
+}
+
+/* Формы */
+.form-control {
+  border-radius: $radius-sm;
+  border: 1px solid $border-color;
+  padding: 10px 14px;
+  font-size: 14px;
+
+  &:focus {
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    outline: none;
+  }
+}
+
+/* Бейджи/статусы */
+.badge {
+  border-radius: $radius-sm;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background-color: $primary-blue;
+}
+
+.badge-success {
+  background-color: $success-green;
+}
+
+.badge-danger {
+  background-color: $error-red;
+}
+
+.badge-warning {
+  background-color: $accent-orange;
+}
+
+/* Утилиты */
+.text-primary { color: $primary-blue !important; }
+.text-secondary { color: $text-secondary !important; }
+.text-muted { color: $text-muted !important; }
+.text-success { color: $success-green !important; }
+.text-danger { color: $error-red !important; }
+
+.bg-light { background-color: $bg-light !important; }
+.bg-white { background-color: $bg-white !important; }

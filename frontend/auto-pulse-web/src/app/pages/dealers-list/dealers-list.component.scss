@@ -1,6 +1,271 @@
+// Цветовые переменные (в стиле trudvsem.ru)
+$primary-blue: #0056b3;
+$primary-dark: #003d82;
+$accent-red: #d32f2f;
+$accent-orange: #ff6b00;
+$bg-light: #f5f7fa;
+$bg-white: #ffffff;
+$border-color: #e0e3e8;
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$text-muted: #95a5a6;
+$success-green: #28a745;
+$error-red: #dc3545;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
+.container {
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  background-color: $bg-light;
+  min-height: 100vh;
+}
+
+h1 {
+  margin-bottom: 24px !important;
+  color: $text-primary;
+  font-size: 28px;
+  font-weight: 600;
+  padding-bottom: 16px;
+  border-bottom: 2px solid $primary-blue;
+}
+
+// Карточка фильтров
+.card {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  margin-bottom: 24px !important;
+
+  .card-body {
+    padding: 20px;
+  }
+}
+
+// Формы
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  border-radius: $radius-sm;
+  border: 1px solid $border-color;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: $bg-white;
+  color: $text-primary;
+
+  &:focus {
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+// Кнопки
+.btn {
+  border-radius: $radius-sm;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-primary {
+  background-color: $primary-blue;
+  color: white;
+
+  &:hover {
+    background-color: $primary-dark;
+  }
+}
+
+// Таблица
 .table {
-  background: white;
-  border-radius: 8px;
+  background: $bg-white;
+  border-radius: $radius-md;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
+  margin-bottom: 24px;
+
+  thead {
+    background: linear-gradient(135deg, $primary-blue 0%, #003d82 100%);
+    
+    th {
+      color: white;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 14px 16px;
+      border: none;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: rgba(0, 86, 179, 0.03);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 14px 16px;
+        font-size: 14px;
+        color: $text-primary;
+        vertical-align: middle;
+
+        a {
+          color: $primary-blue;
+          text-decoration: none;
+          font-weight: 500;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        strong {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Рейтинг
+.text-success {
+  color: $success-green !important;
+  font-weight: 600;
+}
+
+.text-warning {
+  color: $accent-orange !important;
+  font-weight: 600;
+}
+
+.text-danger {
+  color: $error-red !important;
+  font-weight: 600;
+}
+
+// Пагинация
+.pagination {
+  .page-item {
+    margin: 0 4px;
+
+    .page-link {
+      border-radius: $radius-sm;
+      border: 1px solid $border-color;
+      color: $primary-blue;
+      padding: 8px 16px;
+      font-size: 14px;
+      background: $bg-white;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $primary-blue;
+        color: white;
+        border-color: $primary-blue;
+      }
+    }
+
+    &.active {
+      .page-link {
+        background: $primary-blue;
+        color: white;
+        border-color: $primary-blue;
+        font-weight: 600;
+      }
+    }
+
+    &.disabled {
+      .page-link {
+        color: $text-muted;
+        background: $bg-white;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Спиннер загрузки
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+}
+
+// Алерты
+.alert {
+  padding: 16px 20px;
+  border-radius: $radius-md;
+  font-size: 14px;
+  border: 1px solid;
+
+  &.alert-danger {
+    background: rgba(220, 53, 69, 0.05);
+    border-color: $error-red;
+    color: $error-red;
+  }
+}
+
+// Текст
+.text-muted {
+  color: $text-muted !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .table {
+    font-size: 13px;
+
+    thead th,
+    tbody td {
+      padding: 10px 12px;
+    }
+  }
 }
