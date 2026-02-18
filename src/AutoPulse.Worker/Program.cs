@@ -45,11 +45,8 @@ try
 
         x.UsingRabbitMq((context, cfg) =>
         {
-            cfg.Host("localhost", h =>
-            {
-                h.Username("guest");
-                h.Password("guest");
-            });
+            var rabbitMqHost = builder.Configuration.GetConnectionString("RabbitMQ") ?? "amqp://guest:guest@localhost:5672";
+            cfg.Host(rabbitMqHost);
 
             cfg.ReceiveEndpoint("parse-cars-queue", e =>
             {
