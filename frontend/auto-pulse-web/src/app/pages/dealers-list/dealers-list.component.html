@@ -54,7 +54,11 @@
         <tbody>
           @for (dealer of dealers(); track trackByDealerId($index, dealer)) {
             <tr>
-              <td><strong>{{ dealer.name }}</strong></td>
+              <td>
+                <a [routerLink]="['/dealers', dealer.id]" class="text-decoration-none">
+                  <strong>{{ dealer.name }}</strong>
+                </a>
+              </td>
               <td>{{ dealer.marketName }} ({{ dealer.marketRegion }})</td>
               <td>
                 <span [class]="getRatingClass(dealer.rating)">

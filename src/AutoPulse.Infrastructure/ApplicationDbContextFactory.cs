@@ -8,10 +8,10 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        
+
         // Connection string для миграций (разработка)
         optionsBuilder.UseNpgsql(
-            "Host=localhost;Port=5432;Database=autopulse;Username=postgres;Password=postgres123"
+            "User ID=postgres;Password=adminsgesYfdkjnfk;Host=10.23.3.172;Port=5432;Database=autopulse;"
         );
 
         return new ApplicationDbContext(optionsBuilder.Options);

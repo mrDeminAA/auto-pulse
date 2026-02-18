@@ -13,8 +13,7 @@ public static class MarketsEndpoints
     public static void MapMarketsEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/markets")
-            .WithTags("Markets")
-            .WithOpenApi();
+            .WithTags("Markets");
 
         // GET /api/markets
         group.MapGet("/", async (ISender sender, CancellationToken ct) =>

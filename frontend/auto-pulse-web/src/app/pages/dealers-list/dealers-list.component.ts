@@ -1,13 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { DealersStore } from '../../stores/dealers.store';
 import { Dealer } from '../../models/dealer.model';
 
 @Component({
   selector: 'app-dealers-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dealers-list.component.html',
   styleUrls: ['./dealers-list.component.scss']
 })

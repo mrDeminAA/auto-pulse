@@ -1,0 +1,108 @@
+@if (loading) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Загрузка...</span>
+    </div>
+  </div>
+} @else if (error) {
+  <div class="alert alert-danger" role="alert">
+    {{ error }}
+    <a routerLink="/dealers" class="alert-link">Вернуться к списку дилеров</a>
+  </div>
+} @else if (dealer) {
+  <div class="container">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dealers">Дилеры</a></li>
+        <li class="breadcrumb-item active">{{ dealer.name }}</li>
+      </ol>
+    </nav>
+
+    <!-- Основная информация -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🏢 {{ dealer.name }}</h4>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <h6>📍 Рынок</h6>
+                <p class="mb-0">{{ dealer.marketName }} ({{ dealer.marketRegion }})</p>
+              </div>
+              <div class="col-md-6">
+                <h6>⭐ Рейтинг</h6>
+                <p class="mb-0" [class]="getRatingClass(dealer.rating)">
+                  {{ dealer.rating.toFixed(1) }} из 5.0
+                </p>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <h6>📞 Контакты</h6>
+                <p class="mb-0">{{ dealer.contactInfo || 'Не указаны' }}</p>
+              </div>
+              <div class="col-md-6">
+                <h6>🏠 Адрес</h6>
+                <p class="mb-0">{{ dealer.address || 'Не указан' }}</p>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+              <div class="col-md-6">
+                <h6>🚗 Всего автомобилей</h6>
+                <p class="mb-0 fs-4">{{ dealer.carsCount }}</p>
+              </div>
+              <div class="col-md-6">
+                <h6>✅ В наличии</h6>
+                <p class="mb-0 fs-4">{{ dealer.availableCarsCount }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Боковая панель -->
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">📊 Информация</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Валюта рынка:</span>
+                <strong>{{ dealer.marketCurrency }}</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Дата добавления:</span>
+                <strong>{{ dealer.createdAt | date:'dd.MM.yyyy' }}</strong>
+              </li>
+              @if (dealer.updatedAt) {
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>Обновлено:</span>
+                  <strong>{{ dealer.updatedAt | date:'dd.MM.yyyy' }}</strong>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <a routerLink="/dealers" class="btn btn-outline-primary w-100">
+              ← Вернуться к списку
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -30,6 +30,24 @@ namespace AutoPulse.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DataSources",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Country = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    BaseUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Language = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DataSources", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Markets",
                 columns: table => new
                 {
@@ -103,6 +121,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     ModelId = table.Column<int>(type: "integer", nullable: false),
                     MarketId = table.Column<int>(type: "integer", nullable: false),
                     DealerId = table.Column<int>(type: "integer", nullable: true),
+                    DataSourceId = table.Column<int>(type: "integer", nullable: true),
                     Year = table.Column<int>(type: "integer", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
                     Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
@@ -130,6 +149,12 @@ namespace AutoPulse.Infrastructure.Migrations
                         principalTable: "Brands",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Cars_DataSources_DataSourceId",
+                        column: x => x.DataSourceId,
+                        principalTable: "DataSources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Cars_Dealers_DealerId",
                         column: x => x.DealerId,
@@ -162,6 +187,11 @@ namespace AutoPulse.Infrastructure.Migrations
                 column: "BrandId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cars_DataSourceId",
+                table: "Cars",
+                column: "DataSourceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Cars_DealerId",
                 table: "Cars",
                 column: "DealerId");
@@ -186,7 +216,13 @@ namespace AutoPulse.Infrastructure.Migrations
                 name: "IX_Cars_Vin",
                 table: "Cars",
                 column: "Vin",
-                filter: "Vin IS NOT NULL");
+                filter: "\"Vin\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DataSources_Name_Country",
+                table: "DataSources",
+                columns: new[] { "Name", "Country" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Dealers_MarketId",
@@ -211,6 +247,9 @@ namespace AutoPulse.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Cars");
+
+            migrationBuilder.DropTable(
+                name: "DataSources");
 
             migrationBuilder.DropTable(
                 name: "Dealers");

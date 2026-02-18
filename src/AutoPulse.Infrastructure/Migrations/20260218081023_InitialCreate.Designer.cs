@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AutoPulse.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260217232637_InitialCreate")]
+    [Migration("20260218081023_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace AutoPulse.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -84,6 +84,9 @@ namespace AutoPulse.Infrastructure.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
 
+                    b.Property<int?>("DataSourceId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("DealerId")
                         .HasColumnType("integer");
 
@@ -138,6 +141,8 @@ namespace AutoPulse.Infrastructure.Migrations
 
                     b.HasIndex("BrandId");
 
+                    b.HasIndex("DataSourceId");
+
                     b.HasIndex("DealerId");
 
                     b.HasIndex("MarketId");
@@ -148,9 +153,49 @@ namespace AutoPulse.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("Vin")
-                        .HasFilter("Vin IS NOT NULL");
+                        .HasFilter("\"Vin\" IS NOT NULL");
 
                     b.ToTable("Cars");
+                });
+
+            modelBuilder.Entity("AutoPulse.Domain.DataSource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Country")
+                        .IsUnique();
+
+                    b.ToTable("DataSources");
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.Dealer", b =>
@@ -269,6 +314,11 @@ namespace AutoPulse.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("AutoPulse.Domain.DataSource", "DataSource")
+                        .WithMany()
+                        .HasForeignKey("DataSourceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("AutoPulse.Domain.Dealer", "Dealer")
                         .WithMany("Cars")
                         .HasForeignKey("DealerId")
@@ -287,6 +337,8 @@ namespace AutoPulse.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Brand");
+
+                    b.Navigation("DataSource");
 
                     b.Navigation("Dealer");
 

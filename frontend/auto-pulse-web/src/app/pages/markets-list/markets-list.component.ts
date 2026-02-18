@@ -1,12 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MarketsStore } from '../../stores/markets.store';
 import { Market } from '../../models/market.model';
 
 @Component({
   selector: 'app-markets-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './markets-list.component.html',
   styleUrls: ['./markets-list.component.scss']
 })

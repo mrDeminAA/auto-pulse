@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AutoPulse.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260217233136_AddDataSource")]
+    [Migration("20260218081033_AddDataSource")]
     partial class AddDataSource
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace AutoPulse.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -153,7 +153,7 @@ namespace AutoPulse.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("Vin")
-                        .HasFilter("Vin IS NOT NULL");
+                        .HasFilter("\"Vin\" IS NOT NULL");
 
                     b.ToTable("Cars");
                 });

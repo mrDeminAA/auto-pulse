@@ -12,8 +12,7 @@ public static class BrandsEndpoints
     public static void MapBrandsEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/brands")
-            .WithTags("Brands")
-            .WithOpenApi();
+            .WithTags("Brands");
 
         // GET /api/brands
         group.MapGet("/", async (ApplicationDbContext db, CancellationToken ct) =>

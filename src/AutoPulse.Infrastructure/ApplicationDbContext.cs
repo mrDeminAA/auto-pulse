@@ -110,7 +110,7 @@ public class ApplicationDbContext : DbContext
                   .HasForeignKey(e => e.DataSourceId)
                   .OnDelete(DeleteBehavior.SetNull);
 
-            entity.HasIndex(e => e.Vin).HasFilter("Vin IS NOT NULL");
+            entity.HasIndex(e => e.Vin).HasFilter("\"Vin\" IS NOT NULL");
             entity.HasIndex(e => e.SourceUrl).IsUnique();
         });
     }

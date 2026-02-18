@@ -12,8 +12,7 @@ public static class DealersEndpoints
     public static void MapDealersEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/dealers")
-            .WithTags("Dealers")
-            .WithOpenApi();
+            .WithTags("Dealers");
 
         // GET /api/dealers
         group.MapGet("/", async (

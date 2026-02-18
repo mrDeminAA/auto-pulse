@@ -15,18 +15,20 @@
     <div class="row">
       @for (market of markets(); track trackByMarketId($index, market)) {
         <div class="col-md-4 mb-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">{{ market.name }}</h5>
-              <p class="card-text">
-                <strong>Регион:</strong> {{ market.region }}<br>
-                <strong>Валюта:</strong> {{ market.currency }}
-              </p>
-              <small class="text-muted">
-                Добавлен: {{ market.createdAt | date:'dd.MM.yyyy' }}
-              </small>
+          <a [routerLink]="['/markets', market.id]" class="text-decoration-none">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">{{ market.name }}</h5>
+                <p class="card-text">
+                  <strong>Регион:</strong> {{ market.region }}<br>
+                  <strong>Валюта:</strong> {{ market.currency }}
+                </p>
+                <small class="text-muted">
+                  Добавлен: {{ market.createdAt | date:'dd.MM.yyyy' }}
+                </small>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
       } @empty {
         <div class="col-12">

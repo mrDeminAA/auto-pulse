@@ -12,8 +12,7 @@ public static class CarsEndpoints
     public static void MapCarsEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/cars")
-            .WithTags("Cars")
-            .WithOpenApi();
+            .WithTags("Cars");
 
         // GET /api/cars
         group.MapGet("/", async (

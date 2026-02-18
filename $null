@@ -1,2 +1,5 @@
-Ошибка: Неправильный параметр или аргумент - ';'.
-Введите "TASKKILL /?" для получения справки по использованию.
+unknown shorthand flag: 'd' in -d
+
+Usage:  docker volume rm [OPTIONS] VOLUME [VOLUME...]
+
+Run 'docker volume rm --help' for more information
