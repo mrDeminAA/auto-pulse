@@ -101,6 +101,8 @@ app.MapHealthChecks("/health");
 // API Endpoints
 app.MapBrandsEndpoints();
 app.MapCarsEndpoints();
+app.MapMarketsEndpoints();
+app.MapDealersEndpoints();
 
 // Миграция БД при запуске (для разработки)
 using (var scope = app.Services.CreateScope())

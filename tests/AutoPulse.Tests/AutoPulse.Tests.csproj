@@ -10,6 +10,8 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0-preview.1.26104.118" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="11.0.0-preview.1.26104.118" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -23,6 +25,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AutoPulse.Application\AutoPulse.Application.csproj" />
     <ProjectReference Include="..\..\src\AutoPulse.Domain\AutoPulse.Domain.csproj" />
+    <ProjectReference Include="..\..\src\AutoPulse.Infrastructure\AutoPulse.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\AutoPulse.Api\AutoPulse.Api.csproj" />
   </ItemGroup>
 
 </Project>

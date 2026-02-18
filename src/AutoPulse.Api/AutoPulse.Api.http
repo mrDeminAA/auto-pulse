@@ -1,6 +1,93 @@
 @AutoPulse.Api_HostAddress = http://localhost:5204
 
-GET {{AutoPulse.Api_HostAddress}}/weatherforecast/
+### Health Check
+GET {{AutoPulse.Api_HostAddress}}/health
 Accept: application/json
 
-###
+### ==================== BRANDS ====================
+
+# Получить список всех брендов
+GET {{AutoPulse.Api_HostAddress}}/api/brands
+Accept: application/json
+
+### Получить бренд по ID
+GET {{AutoPulse.Api_HostAddress}}/api/brands/1
+Accept: application/json
+
+### Получить модели бренда
+GET {{AutoPulse.Api_HostAddress}}/api/brands/1/models
+Accept: application/json
+
+### ==================== CARS ====================
+
+# Получить список автомобилей с фильтрацией и пагинацией
+GET {{AutoPulse.Api_HostAddress}}/api/cars?page=1&pageSize=20
+Accept: application/json
+
+### Фильтровать автомобили по бренду
+GET {{AutoPulse.Api_HostAddress}}/api/cars?brandId=1&page=1&pageSize=10
+Accept: application/json
+
+### Фильтровать автомобили по рынку
+GET {{AutoPulse.Api_HostAddress}}/api/cars?marketId=1&page=1&pageSize=10
+Accept: application/json
+
+### Фильтровать автомобили по цене
+GET {{AutoPulse.Api_HostAddress}}/api/cars?minPrice=10000&maxPrice=50000
+Accept: application/json
+
+### Получить детали автомобиля по ID
+GET {{AutoPulse.Api_HostAddress}}/api/cars/1
+Accept: application/json
+
+### Получить статистику по автомобилям
+GET {{AutoPulse.Api_HostAddress}}/api/cars/stats/summary
+Accept: application/json
+
+### ==================== MARKETS ====================
+
+# Получить список всех рынков
+GET {{AutoPulse.Api_HostAddress}}/api/markets
+Accept: application/json
+
+### Получить рынок по ID
+GET {{AutoPulse.Api_HostAddress}}/api/markets/1
+Accept: application/json
+
+### Получить дилеров рынка
+GET {{AutoPulse.Api_HostAddress}}/api/markets/1/dealers
+Accept: application/json
+
+### Получить количество автомобилей на рынке
+GET {{AutoPulse.Api_HostAddress}}/api/markets/1/cars/count
+Accept: application/json
+
+### ==================== DEALERS ====================
+
+# Получить список всех дилеров с пагинацией
+GET {{AutoPulse.Api_HostAddress}}/api/dealers?page=1&pageSize=20
+Accept: application/json
+
+### Фильтровать дилеров по рынку
+GET {{AutoPulse.Api_HostAddress}}/api/dealers?marketId=1&page=1&pageSize=10
+Accept: application/json
+
+### Фильтровать дилеров по минимальному рейтингу
+GET {{AutoPulse.Api_HostAddress}}/api/dealers?minRating=4.0&page=1&pageSize=10
+Accept: application/json
+
+### Получить дилера по ID
+GET {{AutoPulse.Api_HostAddress}}/api/dealers/1
+Accept: application/json
+
+### Получить дилеров по рынку
+GET {{AutoPulse.Api_HostAddress}}/api/dealers/market/1
+Accept: application/json
+
+### Получить автомобили дилера
+GET {{AutoPulse.Api_HostAddress}}/api/dealers/1/cars?page=1&pageSize=10
+Accept: application/json
+
+### Получить статистику по дилерам
+GET {{AutoPulse.Api_HostAddress}}/api/dealers/stats/summary
+Accept: application/json
