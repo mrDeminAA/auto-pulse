@@ -19,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AutoPulse.Infrastructure\AutoPulse.Infrastructure.csproj" />
     <ProjectReference Include="..\AutoPulse.Application\AutoPulse.Application.csproj" />
+    <ProjectReference Include="..\AutoPulse.Parsing\AutoPulse.Parsing.csproj" />
   </ItemGroup>
 </Project>

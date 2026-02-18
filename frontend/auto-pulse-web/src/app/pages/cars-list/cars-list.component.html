@@ -1,0 +1,42 @@
+<div class="cars-list-container">
+  <h1>Автомобили</h1>
+
+  @if (loading()) {
+    <div class="loading">Загрузка...</div>
+  }
+
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  @if (!loading() && !error() && cars().length > 0) {
+    <div class="cars-info">
+      <span class="count">Всего: {{ totalCount() }}</span>
+    </div>
+
+    <div class="cars-grid">
+      @for (car of cars(); track trackByCarId($index, car)) {
+        <div class="car-card">
+          <h3>{{ car.brandName }} {{ car.modelName }}</h3>
+          <div class="car-details">
+            <p class="year">Год: {{ car.year }}</p>
+            <p class="price">{{ car.price }} {{ car.currency }}</p>
+          </div>
+          <div class="car-status">
+            @if (car.isAvailable) {
+              <span class="available">В наличии</span>
+            } @else {
+              <span class="unavailable">Нет в наличии</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading() && !error() && cars().length === 0) {
+    <div class="no-cars">
+      <p>Автомобили не найдены</p>
+    </div>
+  }
+</div>

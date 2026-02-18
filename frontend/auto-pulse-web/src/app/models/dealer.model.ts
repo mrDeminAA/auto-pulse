@@ -37,6 +37,34 @@ export interface CarBrief {
   modelName: string;
 }
 
+export interface CarDto {
+  id: number;
+  brandId: number;
+  modelId: number;
+  marketId: number;
+  dealerId: number | null;
+  dataSourceId: number | null;
+  year: number;
+  price: number;
+  currency: string;
+  vin: string | null;
+  mileage: number;
+  transmission: string | null;
+  engine: string | null;
+  fuelType: string | null;
+  color: string | null;
+  location: string | null;
+  country: string | null;
+  sourceUrl: string;
+  imageUrl: string | null;
+  isAvailable: boolean;
+  createdAt: string;
+  brandName: string;
+  modelName: string;
+  marketName: string;
+  dealerName: string | null;
+}
+
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;

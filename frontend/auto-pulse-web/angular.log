@@ -1,0 +1,89 @@
+
+> auto-pulse-web@0.0.0 start
+> ng serve
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+Application bundle generation failed. [1.307 seconds] - 2026-02-18T19:43:13.455Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDeprecation[0m [1m[35m[plugin angular-sass][0m
+
+    src/styles.scss:2:8:
+[37m      2 │ @import [32m[37m"bootstrap/scss/bootstrap";
+        ╵         [32m^[0m
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: [4mhttps://sass-lang.com/d/import[0m
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/styles.scss'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2872: This kind of expression is always truthy.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.html:46:70:
+[37m      46 │ ...b-0">{{ stats()?.priceStats?.average | number:[32m'1.0-0' || 0[37m }}</h2>
+         ╵                                                  [32m~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CarsListComponent.
+
+    src/app/pages/cars-list/cars-list.component.ts:10:15:
+[37m      10 │   templateUrl: [32m'./cars-list.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2304: Cannot find name 'inject'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:14:33:
+[37m      14 │   private readonly carsService = [32minject[37m(CarsService);
+         ╵                                  [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'response' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:62:13:
+[37m      62 │       next: ([32mresponse[37m) => {
+         ╵              [32m~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'error' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:67:14:
+[37m      67 │       error: ([32merror[37m) => {
+         ╵               [32m~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'stats' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:76:13:
+[37m      76 │       next: ([32mstats[37m) => {
+         ╵              [32m~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'error' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:79:14:
+[37m      79 │       error: ([32merror[37m) => {
+         ╵               [32m~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'response' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:93:13:
+[37m      93 │       next: ([32mresponse[37m) => {
+         ╵              [32m~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'error' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/cars-list/cars-list.component.ts:99:14:
+[37m      99 │       error: ([32merror[37m) => {
+         ╵               [32m~~~~~[0m
+
+[39m[22m
+Watch mode enabled. Watching for file changes...

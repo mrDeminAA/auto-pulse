@@ -4,6 +4,7 @@ using AutoPulse.Infrastructure;
 using AutoPulse.Application.Parsing;
 using AutoPulse.Infrastructure.Services;
 using AutoPulse.Infrastructure.Messaging;
+using AutoPulse.Parsing;
 using AutoPulse.Worker;
 using Serilog;
 
@@ -24,7 +25,7 @@ try
     var logConfig = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
         .WriteTo.Console();
-    
+
     builder.Services.AddSerilog(logConfig.CreateLogger());
 
     // Регистрация DbContext
@@ -55,7 +56,14 @@ try
         });
     });
 
-    // Регистрация парсера для Китая (Che168) - основной
+    // Регистрация новых парсеров
+    builder.Services.AddParsers();
+
+    // Регистрация очереди и хранилища
+    builder.Services.AddSingleton<ICarParseQueue, CarParseQueue>();
+    builder.Services.AddScoped<ICarStorageService, CarStorageService>();
+
+    // Регистрация старого парсера для обратной совместимости
     builder.Services.AddHttpClient<Che168Parser>(client =>
     {
         client.BaseAddress = new Uri("https://www.che168.com");
@@ -71,6 +79,9 @@ try
 
     // Регистрация Worker Health Service
     builder.Services.AddHostedService<WorkerHealthService>();
+
+    // Регистрация Car Parser Worker
+    builder.Services.AddHostedService<CarParserWorker>();
 
     var host = builder.Build();
 
