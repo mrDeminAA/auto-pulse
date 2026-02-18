@@ -29,5 +29,6 @@ internal class Che168CarDto
     public string? Firstregyear { get; set; }
     public string? DealerLevel { get; set; }
     public string? Imageurl { get; set; }
+    public string? ImageUrl_800 { get; set; }  // Большое изображение
     public string? Displacement { get; set; }
 }

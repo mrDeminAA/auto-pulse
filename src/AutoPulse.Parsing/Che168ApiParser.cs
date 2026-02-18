@@ -125,11 +125,12 @@ public class Che168ApiParser
 
     private string BuildApiUrl(string brandId, int pageIndex, int pageSize)
     {
-        var baseUrl = $"{ApiBaseUrl}?pageindex={pageIndex}&pagesize={pageSize}&brandid={brandId}";
-
-        // Добавляем фиксированные параметры
+        // Минимально необходимые параметры
         var parameters = new Dictionary<string, string>
         {
+            { "pageindex", pageIndex.ToString() },
+            { "pagesize", pageSize.ToString() },
+            { "brandid", brandId },
             { "seriesyearid", "" },
             { "ishideback", "1" },
             { "srecom", "2" },
@@ -141,32 +142,20 @@ public class Che168ApiParser
             { "pageid", "1771440367_2602" },
             { "testtype", "X" },
             { "test102223", "X" },
-            { "testnewcarspecid", "X" },
-            { "location0923", "1" },
-            { "test103410", "X" },
-            { "otherstatisticsext", "%257B%2522history%2522%253A%2522%25E5%2588%2597%25E8%25A1%25A8%25E9%25A1%25B5%2522%252C%2522pvareaid%2522%253A%25220%2522%252C%2522eventid%2522%253A%2522usc_2sc_mc_mclby_cydj_click%2522%257D" },
             { "filtertype", "0" },
-            { "test103371", "X" },
-            { "test103058", "X" },
-            { "test103157", "X" },
-            { "test103485", "test" },
             { "ssnew", "1" },
             { "deviceid", "d9457747-2d23-638c-041b-83eba3487cfe" },
             { "userid", "0" },
             { "s_pid", "0" },
             { "s_cid", "0" },
             { "_appid", "2sc.m" },
-            { "v", "11.41.5" },
             { "_subappid", "" },
-            { "_sign", "" } // Пустая подпись для теста
+            { "v", "11.41.5" }
+            // _sign не добавляем - он динамический
         };
 
-        foreach (var param in parameters)
-        {
-            baseUrl += $"&{param.Key}={param.Value}";
-        }
-
-        return baseUrl;
+        var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+        return $"{ApiBaseUrl}?{queryString}";
     }
 
     private List<ParsedCarData> ParseCarList(List<Che168CarDto>? carList)
@@ -202,6 +191,9 @@ public class Che168ApiParser
 
         var (brand, model, year) = ParseCarName(dto.Carname);
 
+        // Формируем URL изображения
+        var imageUrl = BuildImageUrl(dto);
+
         return new ParsedCarData
         {
             Id = dto.Infoid,
@@ -214,10 +206,31 @@ public class Che168ApiParser
             City = dto.Cname ?? string.Empty,
             Dealer = dto.DealerLevel ?? string.Empty,
             Displacement = dto.Displacement,
-            ImageUrl = dto.Imageurl,
+            ImageUrl = imageUrl,
             SourceUrl = $"https://www.che168.com/home?infoid={dto.Infoid}",
             Source = "Che168"
         };
+    }
+
+    private string BuildImageUrl(Che168CarDto dto)
+    {
+        // Приоритет: ImageUrl_800 > Imageurl > заглушка
+        if (!string.IsNullOrEmpty(dto.ImageUrl_800))
+        {
+            return dto.ImageUrl_800.StartsWith("http") 
+                ? dto.ImageUrl_800 
+                : $"https:{dto.ImageUrl_800}";
+        }
+
+        if (!string.IsNullOrEmpty(dto.Imageurl))
+        {
+            return dto.Imageurl.StartsWith("http") 
+                ? dto.Imageurl 
+                : $"https:{dto.Imageurl}";
+        }
+
+        // Заглушка если нет изображения
+        return $"https://placehold.co/600x400/003d82/ffffff?text={Uri.EscapeDataString(dto.Carname ?? "Car")}";
     }
 
     private (string brand, string model, int year) ParseCarName(string carName)

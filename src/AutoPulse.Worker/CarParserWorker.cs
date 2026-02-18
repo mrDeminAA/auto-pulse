@@ -10,14 +10,14 @@ namespace AutoPulse.Worker;
 /// </summary>
 public class CarParserWorker : BackgroundService
 {
-    private readonly Che168ApiParser _parser;
+    private readonly Che168HtmlParser _parser;
     private readonly ICarParseQueue _queue;
     private readonly ICarStorageService _storage;
     private readonly ILogger<CarParserWorker> _logger;
     private readonly IConfiguration _configuration;
 
     public CarParserWorker(
-        Che168ApiParser parser,
+        Che168HtmlParser parser,
         ICarParseQueue queue,
         ICarStorageService storage,
         ILogger<CarParserWorker> logger,
@@ -68,17 +68,17 @@ public class CarParserWorker : BackgroundService
         _logger.LogInformation("Парсер запущен");
 
         // Получаем настройки
-        var brandId = _configuration.GetValue<string>("Che168:BrandId") ?? Che168ApiParser.BrandIds.Audi;
+        var brandUrl = _configuration.GetValue<string>("Che168:BrandUrl") ?? "https://www.che168.com/beijing/aodi/a3/";
         var maxPages = _configuration.GetValue<int>("Che168:MaxPages", 10);
 
-        _logger.LogInformation("Парсинг бренда {BrandId}, макс. страниц: {MaxPages}", brandId, maxPages);
+        _logger.LogInformation("Парсинг URL {Url}, макс. страниц: {MaxPages}", brandUrl, maxPages);
 
         try
         {
-            await foreach (var car in _parser.ParseAllAsync(brandId, maxPages, cancellationToken))
+            await foreach (var car in _parser.ParseAllAsync(brandUrl, maxPages, cancellationToken))
             {
                 await _queue.EnqueueAsync(car, cancellationToken);
-                _logger.LogDebug("Автомобиль добавлен в очередь: {Id}", car.Id);
+                _logger.LogDebug("Автомобиль добавлен в очередь: {Id} - {Brand} {Model}", car.Id, car.Brand, car.Model);
             }
 
             _logger.LogInformation("Парсинг завершен");

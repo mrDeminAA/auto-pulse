@@ -1,70 +1,109 @@
--- ========================================
--- AutoPulse Seed Data - Правильная версия
--- ========================================
+-- Быстрое наполнение базы тестовыми данными с реальными изображениями
+-- Вставляем бренды, рынки, модели, дилеров и автомобили
 
--- Brands (пропускаем если уже есть)
-INSERT INTO "Brands" ("Name", "Country", "CreatedAt")
-SELECT 'Audi', 'Germany', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Brands" WHERE "Name" = 'Audi');
-INSERT INTO "Brands" ("Name", "Country", "CreatedAt")
-SELECT 'BMW', 'Germany', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Brands" WHERE "Name" = 'BMW');
-INSERT INTO "Brands" ("Name", "Country", "CreatedAt")
-SELECT 'Mercedes-Benz', 'Germany', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Brands" WHERE "Name" = 'Mercedes-Benz');
-INSERT INTO "Brands" ("Name", "Country", "CreatedAt")
-SELECT 'Toyota', 'Japan', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Brands" WHERE "Name" = 'Toyota');
-INSERT INTO "Brands" ("Name", "Country", "CreatedAt")
-SELECT 'Honda', 'Japan', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Brands" WHERE "Name" = 'Honda');
+-- Рынок (Китай)
+INSERT INTO "Markets" ("Id", "Name", "Region", "Currency", "CreatedAt")
+VALUES (1, 'China', 'China', 'CNY', NOW())
+ON CONFLICT ("Id") DO NOTHING;
 
--- Models
-INSERT INTO "Models" ("BrandId", "Name", "CreatedAt")
-SELECT 1, 'A8', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Models" WHERE "Name" = 'A8');
-INSERT INTO "Models" ("BrandId", "Name", "CreatedAt")
-SELECT 1, 'A6', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Models" WHERE "Name" = 'A6');
-INSERT INTO "Models" ("BrandId", "Name", "CreatedAt")
-SELECT 1, 'Q7', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Models" WHERE "Name" = 'Q7');
-INSERT INTO "Models" ("BrandId", "Name", "CreatedAt")
-SELECT 2, 'X5', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Models" WHERE "Name" = 'X5');
-INSERT INTO "Models" ("BrandId", "Name", "CreatedAt")
-SELECT 3, 'S-Class', NOW() WHERE NOT EXISTS (SELECT 1 FROM "Models" WHERE "Name" = 'S-Class');
+-- Бренды
+INSERT INTO "Brands" ("Id", "Name", "Country", "CreatedAt") VALUES
+(1, 'Audi', 'Germany', NOW()),
+(2, 'BMW', 'Germany', NOW()),
+(3, 'Mercedes-Benz', 'Germany', NOW()),
+(4, 'Volkswagen', 'Germany', NOW()),
+(5, 'Toyota', 'Japan', NOW())
+ON CONFLICT ("Id") DO NOTHING;
 
--- Dealers
-INSERT INTO "Dealers" ("Name", "Rating", "ContactInfo", "Address", "MarketId", "CreatedAt")
-SELECT '北京世纪双合旧机动车经纪有限公司', 4.8, '电话：+86-10-12345678', '北京丰台区南四环西路 123 号西厅 D 道', 1, NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Dealers" WHERE "Name" = '北京世纪双合旧机动车经纪有限公司');
+-- Модели
+INSERT INTO "Models" ("Id", "BrandId", "Name", "CreatedAt") VALUES
+(1, 1, 'A8', NOW()),
+(2, 1, 'A6L', NOW()),
+(3, 2, 'X5', NOW()),
+(4, 3, 'E-Class', NOW()),
+(5, 4, 'Touareg', NOW()),
+(6, 5, 'Camry', NOW())
+ON CONFLICT ("Id") DO NOTHING;
 
-INSERT INTO "Dealers" ("Name", "Rating", "ContactInfo", "Address", "MarketId", "CreatedAt")
-SELECT '北京奥迪官方经销商', 4.9, '电话：+86-10-87654321', '北京市朝阳区建国路 88 号', 1, NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Dealers" WHERE "Name" = '北京奥迪官方经销商');
+-- Дилеры
+INSERT INTO "Dealers" ("Id", "Name", "Rating", "ContactInfo", "Address", "MarketId", "CreatedAt") VALUES
+(1, 'Beijing Audi Dealer', 4.5, '+86 10 1234 5678', 'Beijing, Chaoyang District', 1, NOW()),
+(2, 'Shanghai BMW Center', 4.3, '+86 21 8765 4321', 'Shanghai, Pudong', 1, NOW()),
+(3, 'Guangzhou Mercedes', 4.7, '+86 20 1111 2222', 'Guangzhou, Tianhe', 1, NOW())
+ON CONFLICT ("Id") DO NOTHING;
 
-INSERT INTO "Dealers" ("Name", "Rating", "ContactInfo", "Address", "MarketId", "CreatedAt")
-SELECT '上海二手车交易中心', 4.5, '电话：+86-21-11223344', '上海市浦东新区沪南路 500 号', 1, NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Dealers" WHERE "Name" = '上海二手车交易中心');
+-- Источник данных
+INSERT INTO "DataSources" ("Id", "Name", "Country", "BaseUrl", "Language", "IsActive", "CreatedAt")
+VALUES (1, 'Che168', 'China', 'https://www.che168.com', 'zh-CN', true, NOW())
+ON CONFLICT ("Id") DO NOTHING;
 
--- Cars (с обязательным SourceUrl)
-INSERT INTO "Cars" ("DealerId", "MarketId", "BrandId", "ModelId", "Year", "Price", "Currency", "Mileage", "IsAvailable", "SourceUrl", "CreatedAt")
-SELECT 1, 1, 1, 1, 2023, 668000, 'CNY', 18000, TRUE, 'https://www.che168.com/beijing/aodi/aodia8/s58708/', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Cars" WHERE "SourceUrl" = 'https://www.che168.com/beijing/aodi/aodia8/s58708/');
+-- Автомобили с изображениями (используем placeholder с названиями)
+INSERT INTO "Cars" (
+    "Id", "BrandId", "ModelId", "MarketId", "DealerId", "DataSourceId",
+    "Year", "Price", "Currency", "Vin", "Mileage",
+    "Transmission", "Engine", "FuelType", "Color",
+    "Location", "Country", "SourceUrl", "ImageUrl",
+    "IsAvailable", "CreatedAt"
+) VALUES
+(1, 1, 1, 1, 1, 1, 2023, 668000, 'CNY', 'WAUZZZ4G0EN123456', 18000,
+ 'Automatic', '3.0T V6', 'Petrol', 'Black',
+ 'Beijing', 'China', 'https://www.che168.com/home/123456',
+ 'https://cdn.pixabay.com/photo/2020/09/06/07/37/car-5548243_1280.jpg',
+ true, NOW()),
 
-INSERT INTO "Cars" ("DealerId", "MarketId", "BrandId", "ModelId", "Year", "Price", "Currency", "Mileage", "IsAvailable", "SourceUrl", "CreatedAt")
-SELECT 2, 1, 1, 1, 2024, 720000, 'CNY', 5000, TRUE, 'https://www.che168.com/beijing/aodi/aodia8/2024/', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Cars" WHERE "SourceUrl" = 'https://www.che168.com/beijing/aodi/aodia8/2024/');
+(2, 1, 1, 1, 1, 1, 2024, 720000, 'CNY', 'WAUZZZ4G1FN654321', 5000,
+ 'Automatic', '3.0T V6', 'Petrol', 'White',
+ 'Beijing', 'China', 'https://www.che168.com/home/234567',
+ 'https://cdn.pixabay.com/photo/2020/09/06/07/37/car-5548243_1280.jpg',
+ true, NOW()),
 
-INSERT INTO "Cars" ("DealerId", "MarketId", "BrandId", "ModelId", "Year", "Price", "Currency", "Mileage", "IsAvailable", "SourceUrl", "CreatedAt")
-SELECT 1, 1, 1, 2, 2023, 420000, 'CNY', 12000, TRUE, 'https://www.che168.com/beijing/aodi/aodia6/2023/', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Cars" WHERE "SourceUrl" = 'https://www.che168.com/beijing/aodi/aodia6/2023/');
+(3, 1, 2, 1, 1, 1, 2023, 420000, 'CNY', 'WAUZZZ4G2DN789012', 12000,
+ 'Automatic', '2.0T I4', 'Petrol', 'Silver',
+ 'Beijing', 'China', 'https://www.che168.com/home/345678',
+ 'https://cdn.pixabay.com/photo/2016/08/25/12/09/car-1619561_1280.jpg',
+ true, NOW()),
 
-INSERT INTO "Cars" ("DealerId", "MarketId", "BrandId", "ModelId", "Year", "Price", "Currency", "Mileage", "IsAvailable", "SourceUrl", "CreatedAt")
-SELECT 3, 1, 2, 5, 2023, 750000, 'CNY', 10000, TRUE, 'https://www.che168.com/shanghai/bmw/bmwx5/2023/', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Cars" WHERE "SourceUrl" = 'https://www.che168.com/shanghai/bmw/bmwx5/2023/');
+(4, 2, 3, 1, 2, 1, 2023, 750000, 'CNY', 'WBAKB8C50DF345678', 10000,
+ 'Automatic', '3.0T I6', 'Petrol', 'Gray',
+ 'Shanghai', 'China', 'https://www.che168.com/home/456789',
+ 'https://cdn.pixabay.com/photo/2014/07/09/06/47/car-387882_1280.jpg',
+ true, NOW()),
 
-INSERT INTO "Cars" ("DealerId", "MarketId", "BrandId", "ModelId", "Year", "Price", "Currency", "Mileage", "IsAvailable", "SourceUrl", "CreatedAt")
-SELECT 2, 1, 3, 5, 2023, 980000, 'CNY', 6000, TRUE, 'https://www.che168.com/beijing/mercedes/mercedess/2023/', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM "Cars" WHERE "SourceUrl" = 'https://www.che168.com/beijing/mercedes/mercedess/2023/');
+(5, 3, 4, 1, 3, 1, 2023, 980000, 'CNY', 'WDD2130001A123456', 6000,
+ 'Automatic', '2.0T I4', 'Petrol', 'Black',
+ 'Shenzhen', 'China', 'https://www.che168.com/home/567890',
+ 'https://cdn.pixabay.com/photo/2016/11/23/06/57/island-1853345_1280.jpg',
+ true, NOW()),
 
--- Проверка
-SELECT 'Brands' as TableName, COUNT(*) as RecordCount FROM "Brands"
-UNION ALL
-SELECT 'Models', COUNT(*) FROM "Models"
-UNION ALL
-SELECT 'Dealers', COUNT(*) FROM "Dealers"
-UNION ALL
-SELECT 'Cars', COUNT(*) FROM "Cars";
+(6, 4, 5, 1, 1, 1, 2023, 680000, 'CNY', 'WVGZZZ7LZLD123456', 15000,
+ 'Automatic', '3.0T V6', 'Petrol', 'Blue',
+ 'Beijing', 'China', 'https://www.che168.com/home/678901',
+ 'https://cdn.pixabay.com/photo/2012/05/29/00/43/car-49278_1280.jpg',
+ true, NOW()),
+
+(7, 5, 6, 1, 1, 1, 2023, 250000, 'CNY', 'JTNBF1HK5L3123456', 20000,
+ 'Automatic', '2.5L I4', 'Petrol', 'White',
+ 'Guangzhou', 'China', 'https://www.che168.com/home/789012',
+ 'https://cdn.pixabay.com/photo/2016/05/06/16/32/car-1376190_1280.jpg',
+ true, NOW())
+ON CONFLICT ("Id") DO UPDATE SET "ImageUrl" = EXCLUDED."ImageUrl";
+
+-- Сброс счетчиков
+SELECT setval('"Cars_Id_seq"', (SELECT MAX("Id") FROM "Cars") + 1);
+SELECT setval('"Brands_Id_seq"', (SELECT MAX("Id") FROM "Brands") + 1);
+SELECT setval('"Models_Id_seq"', (SELECT MAX("Id") FROM "Models") + 1);
+SELECT setval('"Markets_Id_seq"', (SELECT MAX("Id") FROM "Markets") + 1);
+SELECT setval('"Dealers_Id_seq"', (SELECT MAX("Id") FROM "Dealers") + 1);
+
+-- Проверяем результат
+SELECT 
+    c."Id",
+    b."Name" as "Brand",
+    m."Name" as "Model",
+    c."Year",
+    c."Price",
+    c."ImageUrl"
+FROM "Cars" c
+JOIN "Brands" b ON c."BrandId" = b."Id"
+JOIN "Models" m ON c."ModelId" = m."Id"
+ORDER BY c."Id";

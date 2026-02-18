@@ -13,9 +13,19 @@ public static class ParsingServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddChe168Parser(this IServiceCollection services)
     {
+        // API Parser (не работает без _sign)
         services.AddHttpClient<Che168ApiParser>((provider, client) =>
         {
             client.Timeout = TimeSpan.FromSeconds(60);
+        });
+
+        // HTML Parser (рабочий!)
+        services.AddHttpClient<Che168HtmlParser>((provider, client) =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(60);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            );
         });
 
         return services;
