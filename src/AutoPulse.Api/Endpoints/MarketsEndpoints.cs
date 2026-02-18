@@ -1,11 +1,12 @@
-using Microsoft.EntityFrameworkCore;
-using AutoPulse.Domain;
-using AutoPulse.Infrastructure;
+using MediatR;
+using AutoPulse.Application.Markets.Queries;
+using AutoPulse.Application.Markets.DTOs;
+using AutoPulse.Application.Dealers.DTOs;
 
 namespace AutoPulse.Api.Endpoints;
 
 /// <summary>
-/// API для работы с рынками (регионами)
+/// API для работы с рынками через CQRS + MediatR
 /// </summary>
 public static class MarketsEndpoints
 {
@@ -16,20 +17,10 @@ public static class MarketsEndpoints
             .WithOpenApi();
 
         // GET /api/markets
-        group.MapGet("/", async (ApplicationDbContext db, CancellationToken ct) =>
+        group.MapGet("/", async (ISender sender, CancellationToken ct) =>
         {
-            var markets = await db.Markets
-                .AsNoTracking()
-                .OrderBy(m => m.Name)
-                .Select(m => new MarketDto(
-                    m.Id,
-                    m.Name,
-                    m.Region,
-                    m.Currency,
-                    m.CreatedAt
-                ))
-                .ToListAsync(ct);
-
+            var query = new GetAllMarketsQuery();
+            var markets = await sender.Send(query, ct);
             return Results.Ok(markets);
         })
         .WithName("GetAllMarkets")
@@ -37,22 +28,15 @@ public static class MarketsEndpoints
         .Produces<List<MarketDto>>(StatusCodes.Status200OK);
 
         // GET /api/markets/{id}
-        group.MapGet("/{id:int}", async (int id, ApplicationDbContext db, CancellationToken ct) =>
+        group.MapGet("/{id:int}", async (int id, ISender sender, CancellationToken ct) =>
         {
-            var market = await db.Markets
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id, ct);
+            var query = new GetMarketByIdQuery(id);
+            var market = await sender.Send(query, ct);
 
             if (market == null)
                 return Results.NotFound();
 
-            return Results.Ok(new MarketDetailsDto(
-                market.Id,
-                market.Name,
-                market.Region,
-                market.Currency,
-                market.CreatedAt
-            ));
+            return Results.Ok(market);
         })
         .WithName("GetMarketById")
         .WithSummary("Получить рынок по ID")
@@ -60,28 +44,10 @@ public static class MarketsEndpoints
         .Produces(StatusCodes.Status404NotFound);
 
         // GET /api/markets/{id}/dealers
-        group.MapGet("/{id:int}/dealers", async (int id, ApplicationDbContext db, CancellationToken ct) =>
+        group.MapGet("/{id:int}/dealers", async (int id, ISender sender, CancellationToken ct) =>
         {
-            var market = await db.Markets
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id, ct);
-
-            if (market == null)
-                return Results.NotFound();
-
-            var dealers = await db.Dealers
-                .AsNoTracking()
-                .Where(d => d.MarketId == id)
-                .OrderBy(d => d.Name)
-                .Select(d => new DealerBriefDto(
-                    d.Id,
-                    d.Name,
-                    d.Rating,
-                    d.ContactInfo,
-                    d.Address
-                ))
-                .ToListAsync(ct);
-
+            var query = new GetMarketDealersQuery(id);
+            var dealers = await sender.Send(query, ct);
             return Results.Ok(dealers);
         })
         .WithName("GetMarketDealers")
@@ -90,52 +56,19 @@ public static class MarketsEndpoints
         .Produces(StatusCodes.Status404NotFound);
 
         // GET /api/markets/{id}/cars/count
-        group.MapGet("/{id:int}/cars/count", async (int id, ApplicationDbContext db, CancellationToken ct) =>
+        group.MapGet("/{id:int}/cars/count", async (int id, ISender sender, CancellationToken ct) =>
         {
-            var market = await db.Markets
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id, ct);
+            var query = new GetMarketCarsCountQuery(id);
+            var result = await sender.Send(query, ct);
 
-            if (market == null)
+            if (result == null)
                 return Results.NotFound();
 
-            var totalCount = await db.Cars.CountAsync(c => c.MarketId == id, ct);
-            var availableCount = await db.Cars.CountAsync(c => c.MarketId == id && c.IsAvailable, ct);
-
-            return Results.Ok(new CarsCountDto(totalCount, availableCount));
+            return Results.Ok(result);
         })
         .WithName("GetMarketCarsCount")
         .WithSummary("Получить количество автомобилей на рынке")
         .Produces<CarsCountDto>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
     }
-
-    public record MarketDto(
-        int Id,
-        string Name,
-        string Region,
-        string Currency,
-        DateTime CreatedAt
-    );
-
-    public record MarketDetailsDto(
-        int Id,
-        string Name,
-        string Region,
-        string Currency,
-        DateTime CreatedAt
-    );
-
-    public record DealerBriefDto(
-        int Id,
-        string Name,
-        decimal Rating,
-        string? ContactInfo,
-        string? Address
-    );
-
-    public record CarsCountDto(
-        int TotalCount,
-        int AvailableCount
-    );
 }

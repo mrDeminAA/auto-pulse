@@ -1,8 +1,12 @@
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using AutoPulse.Infrastructure;
+using AutoPulse.Infrastructure.Repositories;
+using AutoPulse.Application.Common.Interfaces;
+using AutoPulse.Application.Common.Mappings;
 using MassTransit;
 using AutoPulse.Api.Endpoints;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +66,20 @@ builder.Services.AddAuthentication(options =>
         )
     };
 });
+
+// Регистрация AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
+// Регистрация MediatR
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(AutoPulse.Application.Markets.Queries.GetAllMarketsQuery).Assembly);
+});
+
+// Регистрация FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<AutoPulse.Application.Markets.Queries.GetAllMarketsQuery>();
+
+// Регистрация Unit of Work и Repository Pattern
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Health Checks
 builder.Services.AddHealthChecks();
