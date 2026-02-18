@@ -1,42 +1,223 @@
-<div class="cars-list-container">
-  <h1>Автомобили</h1>
-
-  @if (loading()) {
-    <div class="loading">Загрузка...</div>
-  }
-
-  @if (error()) {
-    <div class="error">{{ error() }}</div>
-  }
-
-  @if (!loading() && !error() && cars().length > 0) {
-    <div class="cars-info">
-      <span class="count">Всего: {{ totalCount() }}</span>
+<app-main-layout [breadcrumbs]="breadcrumbs">
+  <div class="cars-page">
+    <div class="cars-page__header">
+      <h1 class="page-title">🚗 Автомобили</h1>
+      
+      <!-- Вкладки переключения (заготовка) -->
+      <div class="tabs">
+        <button class="tabs__item tabs__item_active" type="button">
+          Все автомобили
+        </button>
+        <button class="tabs__item" type="button" disabled title="Скоро">
+          Избранное
+        </button>
+        <button class="tabs__item" type="button" disabled title="Скоро">
+          Сравнение
+        </button>
+      </div>
     </div>
 
-    <div class="cars-grid">
-      @for (car of cars(); track trackByCarId($index, car)) {
-        <div class="car-card">
-          <h3>{{ car.brandName }} {{ car.modelName }}</h3>
-          <div class="car-details">
-            <p class="year">Год: {{ car.year }}</p>
-            <p class="price">{{ car.price }} {{ car.currency }}</p>
+    <div class="cars-page__layout">
+      <!-- Боковая панель -->
+      <app-sidebar (search)="onSearch($event)" (reset)="onReset()">
+        <div sidebar-filters>
+          <!-- Фильтр по бренду -->
+          <div class="filter-group">
+            <label class="filter-group__label">Бренд</label>
+            <select class="select" [(ngModel)]="selectedBrand" (change)="onFilterChange()">
+              <option [ngValue]="null">Все бренды</option>
+              @for (brand of brands; track brand) {
+                <option [ngValue]="brand">{{ brand }}</option>
+              }
+            </select>
           </div>
-          <div class="car-status">
-            @if (car.isAvailable) {
-              <span class="available">В наличии</span>
-            } @else {
-              <span class="unavailable">Нет в наличии</span>
-            }
+
+          <!-- Фильтр по году (заготовка) -->
+          <div class="filter-group">
+            <label class="filter-group__label">Год выпуска</label>
+            <div class="range-inputs">
+              <input type="number" class="input input_small" placeholder="От" [(ngModel)]="yearFrom" (change)="onFilterChange()">
+              <input type="number" class="input input_small" placeholder="До" [(ngModel)]="yearTo" (change)="onFilterChange()">
+            </div>
+          </div>
+
+          <!-- Фильтр по цене (заготовка) -->
+          <div class="filter-group">
+            <label class="filter-group__label">Цена, ₽</label>
+            <div class="range-inputs">
+              <input type="number" class="input input_small" placeholder="От" [(ngModel)]="priceFrom" (change)="onFilterChange()">
+              <input type="number" class="input input_small" placeholder="До" [(ngModel)]="priceTo" (change)="onFilterChange()">
+            </div>
+          </div>
+
+          <!-- Фильтр по наличию -->
+          <div class="filter-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="onlyAvailable" (change)="onFilterChange()">
+              <span class="checkbox-label__text">Только в наличии</span>
+            </label>
+          </div>
+
+          <!-- Сортировка -->
+          <div class="filter-group">
+            <label class="filter-group__label">Сортировка</label>
+            <select class="select" [(ngModel)]="sortBy" (change)="onFilterChange()">
+              <option value="newest">Сначала новые</option>
+              <option value="oldest">Сначала старые</option>
+              <option value="price-asc">По возрастанию цены</option>
+              <option value="price-desc">По убыванию цены</option>
+              <option value="year-desc">По году (новые)</option>
+            </select>
           </div>
         </div>
-      }
-    </div>
-  }
+      </app-sidebar>
 
-  @if (!loading() && !error() && cars().length === 0) {
-    <div class="no-cars">
-      <p>Автомобили не найдены</p>
+      <!-- Основной контент -->
+      <div class="cars-page__content">
+        <!-- Панель управления -->
+        <div class="content-panel">
+          <div class="content-panel__left">
+            <!-- Сортировка превью -->
+            <div class="sorting-control">
+              <button class="sorting-control__button" type="button">
+                <span class="sorting-control__text">{{ getSortLabel() }}</span>
+              </button>
+            </div>
+            
+            <!-- Период (заготовка) -->
+            <select class="select select_period">
+              <option value="all">За все время</option>
+              <option value="day">За сутки</option>
+              <option value="3days">За 3 дня</option>
+              <option value="week">За неделю</option>
+              <option value="month">За месяц</option>
+            </select>
+          </div>
+          
+          <div class="content-panel__right">
+            <span class="results-counter">Найдено <strong>{{ totalCount() }}</strong> автомобилей</span>
+            
+            <!-- Кнопка фильтров для мобильных -->
+            <button class="button button_icon button_secondary" type="button" (click)="toggleMobileFilters()">
+              <svg class="icon">
+                <use xlink:href="#filter"></use>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Список автомобилей -->
+        @if (loading()) {
+          <div class="loading-block">
+            <div class="spinner"></div>
+            <p class="loading-block__text">Загрузка...</p>
+          </div>
+        } @else if (error()) {
+          <div class="error-block">
+            <svg class="icon icon_l">
+              <use xlink:href="#error"></use>
+            </svg>
+            <p class="error-block__text">{{ error() }}</p>
+          </div>
+        } @else if (cars().length === 0) {
+          <div class="empty-block">
+            <svg class="icon icon_l">
+              <use xlink:href="#search"></use>
+            </svg>
+            <h3 class="empty-block__title">Автомобили не найдены</h3>
+            <p class="empty-block__text">Попробуйте изменить параметры поиска</p>
+          </div>
+        } @else {
+          <div class="cars-list">
+            @for (car of cars(); track trackByCarId($index, car)) {
+              <article class="car-card car-card_{{ car.isAvailable ? 'available' : 'unavailable' }}">
+                <div class="car-card__wrapper">
+                  <strong class="car-card__name">
+                    <span class="content_visually-hidden">Автомобиль:</span>
+                    {{ car.brandName }} {{ car.modelName }}
+                  </strong>
+                  
+                  <!-- Избранное (заготовка) -->
+                  <span class="car-card__favorite" title="Добавить в избранное">
+                    <label class="button-switch">
+                      <input type="checkbox" class="button-switch__control" disabled>
+                      <svg class="icon button-switch__icon">
+                        <use xlink:href="#heart"></use>
+                      </svg>
+                    </label>
+                  </span>
+                </div>
+
+                <div class="car-card__details">
+                  <div class="car-card__detail-row">
+                    <span class="car-card__year">
+                      <svg class="icon icon_s">
+                        <use xlink:href="#calendar"></use>
+                      </svg>
+                      {{ car.year }} год
+                    </span>
+                    <span class="car-card__mileage" *ngIf="car.mileage">
+                      <svg class="icon icon_s">
+                        <use xlink:href="#mileage"></use>
+                      </svg>
+                      {{ car.mileage | number }} км
+                    </span>
+                  </div>
+                  
+                  <div class="car-card__price">
+                    от {{ car.price | number }} {{ car.currency }}
+                  </div>
+                </div>
+
+                <div class="car-card__footer">
+                  <div class="car-card__status">
+                    @if (car.isAvailable) {
+                      <span class="status-badge status-badge_success">
+                        <svg class="icon icon_s">
+                          <use xlink:href="#check"></use>
+                        </svg>
+                        В наличии
+                      </span>
+                    } @else {
+                      <span class="status-badge status-badge_danger">
+                        <svg class="icon icon_s">
+                          <use xlink:href="#close"></use>
+                        </svg>
+                        Нет в наличии
+                      </span>
+                    }
+                  </div>
+                  
+                  <div class="car-card__actions">
+                    <span class="car-card__date">
+                      Обновлено: {{ car.createdAt | date:'dd.MM.yyyy' }}
+                    </span>
+                    
+                    <!-- Кнопка перехода -->
+                    <button class="button button_icon button_plain" 
+                            title="Открыть в новой вкладке"
+                            disabled
+                            title="Скоро">
+                      <svg class="icon">
+                        <use xlink:href="#tab"></use>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+
+          <!-- Пагинация (заготовка) -->
+          @if (totalCount() > 20) {
+            <div class="pagination-block">
+              <button class="button button_secondary" type="button">
+                Загрузить ещё
+              </button>
+            </div>
+          }
+        }
+      </div>
     </div>
-  }
-</div>
+  </div>
+</app-main-layout>

@@ -1,0 +1,124 @@
+// Цветовые переменные (в стиле trudvsem.ru)
+$primary-blue: #0056b3;
+$primary-dark: #003d82;
+$primary-light: #e8f0fe;
+$accent-red: #d32f2f;
+$bg-light: #f5f7fa;
+$bg-white: #ffffff;
+$border-color: #e0e3e8;
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$text-muted: #95a5a6;
+$success-green: #28a745;
+$radius-sm: 4px;
+$radius-md: 8px;
+
+.main {
+  min-height: 100vh;
+  background-color: $bg-light;
+}
+
+.main__wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}
+
+.main__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+// Хлебные крошки в стиле trudvsem.ru
+.breadcrumbs {
+  margin-bottom: 16px;
+}
+
+.breadcrumbs__list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 8px;
+}
+
+.breadcrumbs__item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+
+  &::after {
+    content: '/';
+    margin-left: 8px;
+    color: $text-muted;
+  }
+
+  &:last-child {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.breadcrumbs__link {
+  color: $primary-blue;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $primary-dark;
+    text-decoration: underline;
+  }
+
+  &.breadcrumbs__link_active {
+    color: $text-primary;
+    font-weight: 500;
+    cursor: default;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+
+  &.icon_s {
+    width: 14px;
+    height: 14px;
+  }
+
+  &.icon_m {
+    width: 20px;
+    height: 20px;
+  }
+
+  &.icon_l {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .main__wrapper {
+    padding: 12px 16px;
+  }
+
+  .main__content {
+    padding: 0 16px 16px;
+  }
+
+  .breadcrumbs__item {
+    font-size: 13px;
+  }
+}

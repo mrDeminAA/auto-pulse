@@ -1,0 +1,36 @@
+<div class="main">
+  <div class="main__wrapper">
+    <!-- Хлебные крошки -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol class="breadcrumbs__list">
+        <li class="breadcrumbs__item">
+          <a class="breadcrumbs__link" routerLink="/">
+            <svg class="icon icon_s">
+              <use xlink:href="#home"></use>
+            </svg>
+            <span class="breadcrumbs__text">Главная</span>
+          </a>
+        </li>
+        @for (crumb of breadcrumbs; track crumb; let i = $index; let isLast = $last) {
+          @if (!isLast) {
+            <li class="breadcrumbs__item">
+              <a class="breadcrumbs__link" [routerLink]="crumb.link">
+                {{ crumb.label }}
+              </a>
+            </li>
+          } @else {
+            <li class="breadcrumbs__item">
+              <span class="breadcrumbs__link breadcrumbs__link_active">
+                {{ crumb.label }}
+              </span>
+            </li>
+          }
+        }
+      </ol>
+    </nav>
+  </div>
+
+  <div class="main__content">
+    <ng-content></ng-content>
+  </div>
+</div>

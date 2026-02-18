@@ -1,0 +1,264 @@
+// Цветовые переменные (в стиле trudvsem.ru)
+$primary-blue: #0056b3;
+$primary-dark: #003d82;
+$primary-light: #e8f0fe;
+$accent-red: #d32f2f;
+$accent-orange: #ff6b00;
+$bg-light: #f5f7fa;
+$bg-white: #ffffff;
+$border-color: #e0e3e8;
+$text-primary: #2c3e50;
+$text-secondary: #6c757d;
+$text-muted: #95a5a6;
+$success-green: #28a745;
+$error-red: #dc3545;
+$radius-sm: 4px;
+$radius-md: 8px;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar__block {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: 16px;
+  box-shadow: $shadow-sm;
+
+  &.sidebar__block_promo {
+    background: linear-gradient(135deg, $primary-light 0%, $bg-white 100%);
+    border-color: $primary-blue;
+  }
+
+  &.sidebar__block_help {
+    background: $bg-white;
+  }
+}
+
+.sidebar__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid $primary-blue;
+}
+
+// Поиск
+.search-block {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  &__label {
+    flex: 1;
+    position: relative;
+    display: block;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 10px 36px 10px 12px;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    font-size: 14px;
+    color: $text-primary;
+    background: $bg-white;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-blue;
+      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: $text-muted;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  &__button {
+    padding: 10px 20px;
+    background: $primary-blue;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background: $primary-dark;
+    }
+  }
+}
+
+// Действия
+.sidebar__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid $border-color;
+}
+
+// Кнопки
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: $radius-sm;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+
+  &.button_block {
+    width: 100%;
+  }
+
+  &.button_secondary {
+    background: $bg-light;
+    color: $text-primary;
+    border: 1px solid $border-color;
+
+    &:hover {
+      background: $border-color;
+    }
+  }
+
+  &.button_plain {
+    background: transparent;
+    color: $primary-blue;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: $primary-light;
+    }
+
+    &:disabled {
+      color: $text-muted;
+      cursor: not-allowed;
+      
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+}
+
+// Промо блок
+.promo-block {
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 8px 0;
+  }
+
+  &__text {
+    font-size: 13px;
+    color: $text-secondary;
+    margin: 0 0 12px 0;
+  }
+
+  &__placeholder {
+    background: $bg-white;
+    border-radius: $radius-sm;
+    padding: 16px;
+    text-align: center;
+  }
+
+  &__chart {
+    height: 100px;
+    background: linear-gradient(135deg, $primary-light 0%, $bg-white 100%);
+    border: 2px dashed $border-color;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-muted;
+    font-size: 12px;
+  }
+}
+
+// Помощь
+.help-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $primary-blue;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $primary-dark;
+  }
+}
+
+// Иконки
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+
+  &.icon_s {
+    width: 14px;
+    height: 14px;
+  }
+
+  &.icon_m {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sidebar__block {
+    flex: 1;
+    min-width: 280px;
+  }
+}

@@ -1,0 +1,70 @@
+<aside class="sidebar">
+  <!-- Блок с быстрыми фильтрами -->
+  <div class="sidebar__block">
+    <h3 class="sidebar__title">Фильтры</h3>
+    
+    <!-- Поиск -->
+    <div class="search-block">
+      <label class="search-block__label">
+        <input 
+          type="text" 
+          class="search-block__input" 
+          placeholder="Введите название..."
+          [formControl]="searchControl"
+        >
+        @if (searchControl.value) {
+          <button class="search-block__clear" type="button" (click)="clearSearch()" aria-label="Очистить">
+            <svg class="icon icon_s">
+              <use xlink:href="#close"></use>
+            </svg>
+          </button>
+        }
+      </label>
+      <button class="search-block__button" type="button" (click)="onSearch()">
+        Найти
+      </button>
+    </div>
+
+    <!-- Фильтры -->
+    <ng-content select="[sidebar-filters]"></ng-content>
+
+    <!-- Кнопки действий -->
+    <div class="sidebar__actions">
+      <button class="button button_secondary button_block" type="button" (click)="resetFilters()">
+        <svg class="icon button__icon">
+          <use xlink:href="#filter"></use>
+        </svg>
+        Сбросить фильтры
+      </button>
+      
+      <!-- Заготовка: Сохранить поиск -->
+      <button class="button button_plain button_block" type="button" disabled title="Скоро будет доступно">
+        <svg class="icon button__icon">
+          <use xlink:href="#loupe-like"></use>
+        </svg>
+        Сохранить поиск
+      </button>
+    </div>
+  </div>
+
+  <!-- Заготовка: Рекламный блок -->
+  <div class="sidebar__block sidebar__block_promo">
+    <div class="promo-block">
+      <h4 class="promo-block__title">📊 Статистика рынка</h4>
+      <p class="promo-block__text">Скоро здесь будет статистика по автомобилям</p>
+      <div class="promo-block__placeholder">
+        <div class="promo-block__chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Заготовка: Помощь -->
+  <div class="sidebar__block sidebar__block_help">
+    <a href="#" class="help-block" title="Нужна помощь?">
+      <svg class="icon icon_m">
+        <use xlink:href="#help"></use>
+      </svg>
+      <span>Нужна помощь?</span>
+    </a>
+  </div>
+</aside>
