@@ -1,7 +1,7 @@
 <app-main-layout [breadcrumbs]="breadcrumbs">
   <div class="cars-page">
     <div class="cars-page__header">
-      <h1 class="page-title">🚗 Автомобили</h1>
+      <h1 class="page-title">Автомобили</h1>
       
       <!-- Вкладки переключения (заготовка) -->
       <div class="tabs">
@@ -131,12 +131,26 @@
           <div class="cars-list">
             @for (car of cars(); track trackByCarId($index, car)) {
               <article class="car-card car-card_{{ car.isAvailable ? 'available' : 'unavailable' }}">
+                <div class="car-card__image-wrapper">
+                  @if (car.imageUrl) {
+                    <img [src]="car.imageUrl" [alt]="car.brandName + ' ' + car.modelName" class="car-card__image" loading="lazy">
+                  } @else {
+                    <div class="car-card__image-placeholder">
+                      <svg class="icon icon_l">
+                        <use xlink:href="#car"></use>
+                      </svg>
+                      <span>Нет фото</span>
+                    </div>
+                  }
+                </div>
+                
+                <div class="car-card__content">
                 <div class="car-card__wrapper">
                   <strong class="car-card__name">
                     <span class="content_visually-hidden">Автомобиль:</span>
                     {{ car.brandName }} {{ car.modelName }}
                   </strong>
-                  
+
                   <!-- Избранное (заготовка) -->
                   <span class="car-card__favorite" title="Добавить в избранное">
                     <label class="button-switch">
@@ -151,21 +165,17 @@
                 <div class="car-card__details">
                   <div class="car-card__detail-row">
                     <span class="car-card__year">
-                      <svg class="icon icon_s">
-                        <use xlink:href="#calendar"></use>
-                      </svg>
                       {{ car.year }} год
                     </span>
-                    <span class="car-card__mileage" *ngIf="car.mileage">
-                      <svg class="icon icon_s">
-                        <use xlink:href="#mileage"></use>
-                      </svg>
-                      {{ car.mileage | number }} км
-                    </span>
+                    @if (car.mileage && car.mileage > 0) {
+                      <span class="car-card__mileage">
+                        {{ car.mileage | number }} км
+                      </span>
+                    }
                   </div>
-                  
+
                   <div class="car-card__price">
-                    от {{ car.price | number }} {{ car.currency }}
+                    {{ car.price | number }} {{ car.currency }}
                   </div>
                 </div>
 
@@ -173,36 +183,21 @@
                   <div class="car-card__status">
                     @if (car.isAvailable) {
                       <span class="status-badge status-badge_success">
-                        <svg class="icon icon_s">
-                          <use xlink:href="#check"></use>
-                        </svg>
                         В наличии
                       </span>
                     } @else {
                       <span class="status-badge status-badge_danger">
-                        <svg class="icon icon_s">
-                          <use xlink:href="#close"></use>
-                        </svg>
                         Нет в наличии
                       </span>
                     }
                   </div>
-                  
+
                   <div class="car-card__actions">
                     <span class="car-card__date">
-                      Обновлено: {{ car.createdAt | date:'dd.MM.yyyy' }}
+                      {{ car.createdAt | date:'dd.MM.yyyy' }}
                     </span>
-                    
-                    <!-- Кнопка перехода -->
-                    <button class="button button_icon button_plain" 
-                            title="Открыть в новой вкладке"
-                            disabled
-                            title="Скоро">
-                      <svg class="icon">
-                        <use xlink:href="#tab"></use>
-                      </svg>
-                    </button>
                   </div>
+                </div>
                 </div>
               </article>
             }

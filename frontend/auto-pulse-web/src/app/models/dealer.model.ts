@@ -59,6 +59,7 @@ export interface CarDto {
   imageUrl: string | null;
   isAvailable: boolean;
   createdAt: string;
+  updatedAt: string | null;
   brandName: string;
   modelName: string;
   marketName: string;
