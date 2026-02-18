@@ -20,11 +20,12 @@ try
     // Add Serilog
     builder.Logging.ClearProviders();
     Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
-    
-    Log.Logger = new LoggerConfiguration()
+
+    var logConfig = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
-        .WriteTo.Console()
-        .CreateLogger();
+        .WriteTo.Console();
+    
+    builder.Services.AddSerilog(logConfig.CreateLogger());
 
     // Регистрация DbContext
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -41,15 +42,15 @@ try
     builder.Services.AddMassTransit(x =>
     {
         x.AddConsumer<ParseCarsCommandConsumer>();
-        
+
         x.UsingRabbitMq((context, cfg) =>
         {
-            cfg.Host(builder.Configuration.GetConnectionString("RabbitMQ"), h =>
+            cfg.Host("localhost", h =>
             {
                 h.Username("guest");
                 h.Password("guest");
             });
-            
+
             cfg.ReceiveEndpoint("parse-cars-queue", e =>
             {
                 e.ConfigureConsumer<ParseCarsCommandConsumer>(context);
@@ -57,17 +58,29 @@ try
         });
     });
 
-    // Регистрация парсера для Китая
+    // Регистрация парсера для Китая (Che168) - основной на данный момент
+    builder.Services.AddHttpClient<Che168Parser>(client =>
+    {
+        client.BaseAddress = new Uri("https://www.che168.com");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        );
+        client.DefaultRequestHeaders.AcceptLanguage.ParseAdd("zh-CN,zh;q=0.9,en;q=0.8");
+    });
+    builder.Services.AddScoped<ICarParser, Che168Parser>();
+
+    // Регистрация парсера для Autohome (альтернативный)
     builder.Services.AddHttpClient<AutohomeParser>(client =>
     {
         client.BaseAddress = new Uri("https://www.autohome.com.cn");
     });
+    // builder.Services.AddScoped<ICarParser, AutohomeParser>(); // Альтернативный парсер
 
     // Регистрация сервиса обработки данных
     builder.Services.AddScoped<IParsedDataService, ParsedDataService>();
 
-    // Регистрация Worker
-    builder.Services.AddHostedService<ParserWorker>();
+    // Регистрация Worker Health Service
+    builder.Services.AddHostedService<WorkerHealthService>();
 
     var host = builder.Build();
 
