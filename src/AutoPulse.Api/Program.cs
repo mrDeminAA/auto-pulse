@@ -6,6 +6,7 @@ using AutoPulse.Application.Common.Interfaces;
 using AutoPulse.Application.Common.Mappings;
 using MassTransit;
 using AutoPulse.Api.Endpoints;
+using AutoPulse.Api.Services;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,10 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
+
+// Регистрация сервисов
+builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
 // Регистрация JWT аутентификации
 builder.Services.AddAuthentication(options =>
@@ -117,6 +122,8 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 // API Endpoints
+app.MapAuthEndpoints();
+app.MapUserSearchEndpoints();
 app.MapBrandsEndpoints();
 app.MapCarsEndpoints();
 app.MapMarketsEndpoints();

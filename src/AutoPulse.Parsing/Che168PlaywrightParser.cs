@@ -1,16 +1,19 @@
+using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using Microsoft.Extensions.Logging;
 
 namespace AutoPulse.Parsing;
 
 /// <summary>
-/// Парсер Che168 через Playwright (headless браузер)
-/// Рендерит JavaScript и получает реальный HTML
+/// Парсер Che168 через Playwright (мобильная версия m.che168.com)
+/// Использует headless браузер с iPhone User-Agent для доступа к мобильной версии
 /// </summary>
 public class Che168PlaywrightParser
 {
     private readonly IBrowser _browser;
     private readonly ILogger<Che168PlaywrightParser> _logger;
+    private readonly HashSet<string> _seenKeys = new();
 
     public Che168PlaywrightParser(IBrowser browser, ILogger<Che168PlaywrightParser> logger)
     {
@@ -19,44 +22,63 @@ public class Che168PlaywrightParser
     }
 
     /// <summary>
-    /// Распарсить страницу поиска
+    /// Распарсить страницу поиска на мобильной версии che168.com
     /// </summary>
     public async Task<IReadOnlyList<ParsedCarData>> ParseSearchPageAsync(
         string brandUrl,
         int pageIndex = 1,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Playwright парсинг: {Url}, страница {Page}", brandUrl, pageIndex);
+        _logger.LogInformation("Playwright парсинг (mobile): {Url}, страница {Page}", brandUrl, pageIndex);
 
         try
         {
-            var url = pageIndex > 1 ? $"{brandUrl.TrimEnd('/')}o{pageIndex}/" : brandUrl;
-            
-            using var page = await _browser.NewPageAsync();
-            
-            // Переходим на страницу
-            await page.GotoAsync(url, new() { WaitUntil = WaitUntilState.NetworkIdle });
-            
-            // Ждем загрузки карточек автомобилей
-            await page.WaitForSelectorAsync("a[href*='/home/']", new() { Timeout = 10000 });
-            
-            // Получаем HTML после рендеринга JavaScript
-            var html = await page.ContentAsync();
-            _logger.LogDebug("Получен HTML после рендеринга JS, размер: {Size} байт", html.Length);
+            var page = await _browser.NewPageAsync();
 
-            // Сохраняем HTML для отладки
-            if (pageIndex == 1)
+            try
             {
-                var debugPath = Path.Combine(Path.GetTempPath(), $"che168-rendered-{DateTime.Now:yyyyMMdd-HHmmss}.html");
-                await File.WriteAllTextAsync(debugPath, html, cancellationToken);
-                _logger.LogDebug("HTML сохранен: {Path}", debugPath);
+                // Формируем URL для мобильной версии
+                var url = pageIndex == 1 
+                    ? "https://m.che168.com/carlist/index?pvareaid=111478" 
+                    : $"https://m.che168.com/carlist/index?pvareaid=111478&page={pageIndex}";
+
+                // Переходим на страницу
+                await page.GotoAsync(url, new() { WaitUntil = WaitUntilState.Load, Timeout = 120000 });
+
+                // Ждём загрузки контента через скроллинг
+                for (int i = 0; i < 8; i++)
+                {
+                    await page.WaitForTimeoutAsync(3000);
+                    await page.EvaluateAsync("window.scrollTo(0, document.body.scrollHeight)");
+                    await page.WaitForTimeoutAsync(1000);
+                    await page.EvaluateAsync("window.scrollTo(0, 0)");
+
+                    var text = await page.EvaluateAsync<string>("() => document.body.innerText");
+                    _logger.LogDebug("Загрузка {Iteration}: {Length} символов", i + 1, text?.Length ?? 0);
+
+                    if ((text?.Length ?? 0) > 1000) break;
+                }
+
+                // Получаем текст и изображения
+                var pageText = await page.EvaluateAsync<string>("() => document.body.innerText");
+                var cars = ParseCarsFromText(pageText ?? "");
+
+                // Получаем изображения отдельно
+                var images = await GetCarImagesAsync(page);
+
+                // Сопоставляем изображения с автомобилями
+                for (int i = 0; i < cars.Count && i < images.Count; i++)
+                {
+                    cars[i].ImageUrl = images[i];
+                }
+
+                _logger.LogInformation("Распаршено {Count} автомобилей", cars.Count);
+                return cars;
             }
-
-            // Парсим автомобили
-            var cars = await ParseCarsFromPageAsync(page);
-            _logger.LogInformation("Распаршено {Count} автомобилей", cars.Count);
-
-            return cars;
+            finally
+            {
+                await page.CloseAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -70,104 +92,179 @@ public class Che168PlaywrightParser
     /// </summary>
     public async IAsyncEnumerable<ParsedCarData> ParseAllAsync(
         string brandUrl,
-        int maxPages = 100,
+        int maxPages = 20,
+        int targetCount = 100,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         int page = 1;
         int totalParsed = 0;
 
-        while (page <= maxPages && !cancellationToken.IsCancellationRequested)
+        _logger.LogInformation("Начало парсинга: цель {Target} авто, макс. {MaxPages} страниц", targetCount, maxPages);
+
+        while (page <= maxPages && totalParsed < targetCount && !cancellationToken.IsCancellationRequested)
         {
             var cars = await ParseSearchPageAsync(brandUrl, page, cancellationToken);
 
-            if (cars.Count == 0)
+            // Фильтруем дубликаты
+            var newCars = cars.Where(c => !_seenKeys.Contains(c.FullName + c.Price)).ToList();
+            foreach (var car in newCars)
             {
-                _logger.LogInformation("Достигнут конец списка на странице {Page}", page);
-                yield break;
+                _seenKeys.Add(car.FullName + car.Price);
             }
 
-            foreach (var car in cars)
+            foreach (var car in newCars)
             {
                 yield return car;
             }
 
-            totalParsed += cars.Count;
+            totalParsed += newCars.Count;
             page++;
 
             _logger.LogInformation("Страниц: {Page}, всего авто: {Total}", page - 1, totalParsed);
+
+            if (newCars.Count == 0)
+            {
+                _logger.LogInformation("Больше нет автомобилей");
+                yield break;
+            }
 
             // Задержка между запросами
             await Task.Delay(2000, cancellationToken);
         }
     }
 
-    private async Task<List<ParsedCarData>> ParseCarsFromPageAsync(IPage page)
+    private async Task<List<string>> GetCarImagesAsync(IPage page)
+    {
+        var images = new List<string>();
+
+        try
+        {
+            var imageUrls = await page.EvaluateAsync<string[]>(@"() => {
+                const imgs = [];
+                document.querySelectorAll('img').forEach(img => {
+                    const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-original');
+                    if (!src || !src.startsWith('http') || src.includes('data:')) return;
+                    
+                    // Фильтруем иконки
+                    const skipPatterns = ['arrow_', 'icon', 'logo', 'global', 'tag_', 'filter', 'home_', 'appimg', 'chedan'];
+                    if (skipPatterns.some(p => src.toLowerCase().includes(p))) return;
+                    
+                    imgs.push(src);
+                });
+                return imgs;
+            }");
+
+            if (imageUrls != null)
+            {
+                images = imageUrls.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Ошибка получения изображений");
+        }
+
+        return images;
+    }
+
+    private List<ParsedCarData> ParseCarsFromText(string text)
     {
         var cars = new List<ParsedCarData>();
+        var lines = text.Split('\n').Select(l => l.Trim()).Where(l => !string.IsNullOrEmpty(l)).ToList();
 
-        // Ищем все ссылки на автомобили
-        var carLinks = await page.QuerySelectorAllAsync("a[href*='/home/']");
+        var skipWords = new[] { 
+            "精品车", "诚信车", "低价清仓", "春节不打烊", "官方补贴", "准新车", "原厂质保", "0 次过户", 
+            "加载中...", "我知道了", "店铺", "分期", "排序", "品牌", "价格", "车龄", "筛选", 
+            "搜索", "全部", "新能源", "会员商家", "全国", "新发捡漏", "0 出险", "90 天回购", 
+            "检测报告", "有选装", "纯电动", "Global", "年终狂补", "4S 直卖", "日常代步", 
+            "5 万以下", "新人练手", "15 万宝马", "成员商家", "首付", "补贴后", "万首付",
+            "有礼赠送", "免手续费", "电池租赁", "续航", "km", "整备中", "支持本地购买"
+        };
 
-        _logger.LogDebug("Найдено {Count} ссылок на автомобили", carLinks.Count);
+        ParsedCarData? currentCar = null;
+        string? pendingPrice = null;
 
-        foreach (var link in carLinks)
+        for (int i = 0; i < lines.Count; i++)
         {
-            try
+            var line = lines[i];
+
+            if (skipWords.Contains(line) || line.Length < 2)
+                continue;
+
+            // Число (первая часть цены)
+            var numberMatch = Regex.Match(line, @"^([\d.]+)$");
+            if (numberMatch.Success && i + 1 < lines.Count && lines[i + 1] == "万")
             {
-                var href = await link.GetAttributeAsync("href");
-                var text = await link.TextContentAsync();
-
-                if (!string.IsNullOrEmpty(href) && href.Contains("/home/"))
-                {
-                    // Извлекаем ID из URL
-                    var idPart = href.Split("/home/").LastOrDefault();
-                    if (!string.IsNullOrEmpty(idPart) && long.TryParse(idPart, out var id))
-                    {
-                        // Извлекаем изображение если есть
-                        var img = await link.QuerySelectorAsync("img");
-                        var imgSrc = img != null ? await img.GetAttributeAsync("src") : null;
-
-                        var car = new ParsedCarData
-                        {
-                            Id = id,
-                            FullName = text?.Trim() ?? $"Car {id}",
-                            SourceUrl = $"https://www.che168.com{href}",
-                            ImageUrl = NormalizeImageUrl(imgSrc),
-                            Source = "Che168"
-                        };
-
-                        // Парсим название
-                        var (brand, model, year) = ParseCarName(text);
-                        car.Brand = brand;
-                        car.Model = model;
-                        car.Year = year;
-
-                        cars.Add(car);
-                        _logger.LogDebug("Добавлен: {Id} - {Brand} {Model}", car.Id, car.Brand, car.Model);
-                    }
-                }
+                pendingPrice = numberMatch.Groups[1].Value + "万";
+                continue;
             }
-            catch (Exception ex)
+
+            // Цена
+            string? priceValue = null;
+            var priceMatch = Regex.Match(line, @"^([\d.]+)\s*万$");
+            if (priceMatch.Success)
             {
-                _logger.LogWarning(ex, "Ошибка при парсинге ссылки");
+                priceValue = priceMatch.Groups[1].Value + "万";
+            }
+            else if (pendingPrice != null)
+            {
+                priceValue = pendingPrice;
+                pendingPrice = null;
+            }
+
+            if (priceValue != null)
+            {
+                if (currentCar != null && string.IsNullOrEmpty(currentCar.Price.ToString()))
+                {
+                    if (decimal.TryParse(priceValue.Replace("万", ""), out var price))
+                    {
+                        currentCar.Price = price;
+                    }
+                    cars.Add(currentCar);
+                    currentCar = null;
+                }
+                continue;
+            }
+
+            // Год и пробег
+            var ymMatch = Regex.Match(line, @"(\d{4}) 年\s*\/\s*([\d.]+)\s*万公里\s*\/\s*([^\s]+)");
+            if (ymMatch.Success)
+            {
+                if (currentCar != null && string.IsNullOrEmpty(currentCar.Year.ToString()))
+                {
+                    currentCar.Year = int.Parse(ymMatch.Groups[1].Value);
+                    currentCar.Mileage = (int)(double.Parse(ymMatch.Groups[2].Value) * 10000);
+                    currentCar.City = ymMatch.Groups[3].Value;
+                }
+                else if (currentCar == null || !string.IsNullOrEmpty(currentCar.Price.ToString()))
+                {
+                    currentCar = new ParsedCarData
+                    {
+                        Year = int.Parse(ymMatch.Groups[1].Value),
+                        Mileage = (int)(double.Parse(ymMatch.Groups[2].Value) * 10000),
+                        City = ymMatch.Groups[3].Value
+                    };
+                }
+                continue;
+            }
+
+            // Название
+            if (line.Length > 5 && line.Length < 80 && currentCar == null)
+            {
+                currentCar = new ParsedCarData { FullName = line };
+                
+                // Парсим бренд и модель из названия
+                var (brand, model, year) = ParseCarName(line);
+                currentCar.Brand = brand;
+                currentCar.Model = model;
+                if (year > 0 && currentCar.Year == 0)
+                {
+                    currentCar.Year = year;
+                }
             }
         }
 
-        return cars;
-    }
-
-    private string NormalizeImageUrl(string? url)
-    {
-        if (string.IsNullOrEmpty(url))
-            return "https://cdn.pixabay.com/photo/2020/09/06/07/37/car-5548243_1280.jpg";
-
-        if (url.StartsWith("//"))
-            return $"https:{url}";
-
-        if (url.StartsWith("http"))
-            return url;
-
-        return "https://cdn.pixabay.com/photo/2020/09/06/07/37/car-5548243_1280.jpg";
+        return cars.Where(c => !string.IsNullOrEmpty(c.FullName)).ToList();
     }
 
     private (string brand, string model, int year) ParseCarName(string? carName)

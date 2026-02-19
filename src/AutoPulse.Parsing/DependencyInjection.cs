@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Playwright;
 
 namespace AutoPulse.Parsing;
 
@@ -26,6 +27,24 @@ public static class ParsingServiceCollectionExtensions
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             );
+        });
+
+        // Playwright Parser (мобильная версия)
+        services.AddSingleton<IPlaywright>(sp => Playwright.CreateAsync().GetAwaiter().GetResult());
+        services.AddSingleton<IBrowser>(sp =>
+        {
+            var playwright = sp.GetRequiredService<IPlaywright>();
+            return playwright.Chromium.LaunchAsync(new()
+            {
+                Headless = false,
+                Args = new[] { "--no-sandbox", "--disable-setuid-sandbox" }
+            }).GetAwaiter().GetResult();
+        });
+        services.AddSingleton(sp =>
+        {
+            var browser = sp.GetRequiredService<IBrowser>();
+            var logger = sp.GetRequiredService<ILogger<Che168PlaywrightParser>>();
+            return new Che168PlaywrightParser(browser, logger);
         });
 
         return services;
