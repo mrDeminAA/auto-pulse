@@ -126,6 +126,11 @@ docker-compose*.yml
 Dockerfile*
 .docker/
 
+# App Settings
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
