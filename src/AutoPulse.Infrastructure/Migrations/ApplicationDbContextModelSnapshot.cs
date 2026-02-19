@@ -53,7 +53,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.Car", b =>
@@ -155,7 +155,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("Vin")
                         .HasFilter("\"Vin\" IS NOT NULL");
 
-                    b.ToTable("Cars");
+                    b.ToTable("Cars", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.CarAlert", b =>
@@ -193,7 +193,7 @@ namespace AutoPulse.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CarAlerts");
+                    b.ToTable("CarAlerts", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.CarSearchQueue", b =>
@@ -256,7 +256,7 @@ namespace AutoPulse.Infrastructure.Migrations
 
                     b.HasIndex("BrandId", "ModelId", "Generation", "YearFrom", "YearTo");
 
-                    b.ToTable("CarSearchQueues");
+                    b.ToTable("CarSearchQueues", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.DataSource", b =>
@@ -296,7 +296,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("Name", "Country")
                         .IsUnique();
 
-                    b.ToTable("DataSources");
+                    b.ToTable("DataSources", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.Dealer", b =>
@@ -336,7 +336,7 @@ namespace AutoPulse.Infrastructure.Migrations
 
                     b.HasIndex("MarketId");
 
-                    b.ToTable("Dealers");
+                    b.ToTable("Dealers", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.Market", b =>
@@ -370,7 +370,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Markets");
+                    b.ToTable("Markets", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.Model", b =>
@@ -404,7 +404,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("BrandId", "Name")
                         .IsUnique();
 
-                    b.ToTable("Models");
+                    b.ToTable("Models", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.PriceHistory", b =>
@@ -441,7 +441,7 @@ namespace AutoPulse.Infrastructure.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("PriceHistories");
+                    b.ToTable("PriceHistories", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.User", b =>
@@ -492,7 +492,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("TelegramId")
                         .HasFilter("\"TelegramId\" IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.UserCar", b =>
@@ -529,7 +529,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("UserId", "CarId")
                         .IsUnique();
 
-                    b.ToTable("UserCars");
+                    b.ToTable("UserCars", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.UserPreferences", b =>
@@ -606,7 +606,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserPreferences");
+                    b.ToTable("UserPreferences", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.UserSearch", b =>
@@ -666,7 +666,7 @@ namespace AutoPulse.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserSearchs");
+                    b.ToTable("UserSearchs", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.UserSearchQueue", b =>
@@ -702,7 +702,7 @@ namespace AutoPulse.Infrastructure.Migrations
                     b.HasIndex("UserSearchId", "CarSearchQueueId")
                         .IsUnique();
 
-                    b.ToTable("UserSearchQueues");
+                    b.ToTable("UserSearchQueues", (string)null);
                 });
 
             modelBuilder.Entity("AutoPulse.Domain.Car", b =>

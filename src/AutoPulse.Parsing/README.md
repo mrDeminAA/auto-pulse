@@ -26,12 +26,12 @@ builder.Services.AddChe168Parser();
 public class MyService
 {
     private readonly Che168ApiParser _parser;
-    
+
     public MyService(Che168ApiParser parser)
     {
         _parser = parser;
     }
-    
+
     public async Task ParseCarsAsync()
     {
         // Получить одну страницу
@@ -40,7 +40,7 @@ public class MyService
             pageIndex: 1,
             pageSize: 10
         );
-        
+
         // Или получить все автомобили с пагинацией
         await foreach (var car in _parser.ParseAllAsync(
             brandId: Che168ApiParser.BrandIds.Audi,
@@ -78,7 +78,7 @@ public class ParsedCarData
 {
     public long Id { get; set; }           // ID объявления
     public string Brand { get; set; }      // Бренд (奥迪)
-    public string Model { get; set; }      // Модель (A4L)
+    public string Model { get; set; }      // Модель
     public string FullName { get; set; }   // Полное название
     public int Year { get; set; }          // Год
     public decimal Price { get; set; }     // Цена в ¥

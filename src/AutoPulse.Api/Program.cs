@@ -135,19 +135,20 @@ app.MapDealersEndpoints();
 app.MapParseEndpoints();
 
 // Миграция БД при запуске (для разработки)
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try
-    {
-        await dbContext.Database.MigrateAsync();
-        Log.Information("Миграция БД выполнена успешно");
-    }
-    catch (Exception ex)
-    {
-        Log.Error(ex, "Ошибка при миграции БД");
-    }
-}
+// Отключено - применяйте миграции вручную: dotnet ef database update
+// using (var scope = app.Services.CreateScope())
+// {
+//     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//     try
+//     {
+//         await dbContext.Database.MigrateAsync();
+//         Log.Information("Миграция БД выполнена успешно");
+//     }
+//     catch (Exception ex)
+//     {
+//         Log.Error(ex, "Ошибка при миграции БД");
+//     }
+// }
 
 try
 {

@@ -121,6 +121,11 @@ ServiceFabricBackup/
 # Node.js (if using)
 node_modules/
 
+# Docker
+docker-compose*.yml
+Dockerfile*
+.docker/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
