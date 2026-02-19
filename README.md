@@ -1,30 +1,35 @@
 # 🚗 AutoPulse
 
-**Аналитическая платформа для мониторинга зарубежного рынка автомобилей**
+**Персональный мониторинг автомобилей по всему миру**
 
 [![.NET](https://img.shields.io/badge/.NET-11-purple?logo=dotnet)](https://dotnet.microsoft.com)
-[![Angular](https://img.shields.io/badge/Angular-19+-red?logo=angular)](https://angular.io)
+[![Angular](https://img.shields.io/badge/Angular-21+-red?logo=angular)](https://angular.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)](https://www.postgresql.org)
 [![Redis](https://img.shields.io/badge/Redis-7-red?logo=redis)](https://redis.io)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-orange?logo=rabbitmq)](https://www.rabbitmq.com)
+[![Playwright](https://img.shields.io/badge/Playwright-1.50-green?logo=playwright)](https://playwright.dev)
 
 ---
 
 ## 📖 О проекте
 
-**AutoPulse** — это мощная аналитическая система для сбора, обработки и визуализации данных о зарубежном автомобильном рынке.
+**AutoPulse** — это умная платформа для персонального мониторинга рынка автомобилей с глобальным охватом.
 
-### 🔥 Возможности
+### 🎯 Концепция
 
-- 📊 **Мониторинг рынка** — отслеживание цен, моделей, комплектаций
-- 🌍 **Мультирегиональность** — США, Европа, Китай, Корея, Япония
-- 🤖 **Автоматический парсинг** — сбор данных с популярных автопорталов
-  - ✅ **Китай**: Autohome (www.autohome.com.cn)
-  - ⚪ США: Cars.com (в плане)
-  - ⚪ Европа: Mobile.de (в плане)
-- 📈 **Аналитика и тренды** — динамика цен, популярность моделей, сравнение рынков
-- 🔔 **Уведомления** — алерты при изменении цен или появлении новых авто
-- 📉 **Дашборды** — интерактивные графики и отчёты
+> **Выбери свою идеальную машину — мы найдём её по всему миру**
+
+Пользователь выбирает марку, модель и параметры → система мониторит все рынки → показывает лучшие предложения в реальном времени.
+
+### 🔥 Ключевые возможности
+
+- 🎯 **Персональный поиск** — настрой параметры под себя (марка, модель, год, бюджет)
+- 🌍 **Глобальный мониторинг** — Китай, Европа, США, Япония
+- 🤖 **Умная очередь парсинга** — дедупликация запросов, приоритеты, расписание
+- 📊 **Общие результаты** — один парсинг для всех пользователей
+- 🔔 **Real-time уведомления** — новые авто, снижение цен
+- 📈 **Аналитика рынка** — динамика цен, статистика по поколениям
+- 🔐 **JWT авторизация** — регистрация, профиль, избранное
 
 ---
 
@@ -33,29 +38,35 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Angular Dashboard                        │
-│                   (NgRx + Highcharts)                       │
+│              (Auth, Search, Dashboard, Alerts)              │
 └─────────────────────────┬───────────────────────────────────┘
-                          │ HTTP/REST
+                          │ HTTP/REST + JWT
 ┌─────────────────────────▼───────────────────────────────────┐
 │                  AutoPulse.Api (.NET 11)                    │
-│                     Clean Architecture                      │
+│                  Minimal API + Endpoints                    │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │              Health Checks / Swagger                  │  │
+│  │  /api/auth/*       - регистрация, логин, профиль      │  │
+│  │  /api/user/search/* - управление поиском              │  │
+│  │  /api/cars/*       - список автомобилей               │  │
 │  └───────────────────────────────────────────────────────┘  │
 │         │                    │                    │          │
 │         ▼                    ▼                    ▼          │
-│   PostgreSQL            Redis              RabbitMQ         │
-│   (основные данные)     (кэш)              (очереди)        │
+│   PostgreSQL            Redis              SignalR          │
+│   (пользователи,         (кэш)              (real-time)     │
+│    поиск, очередь)                                           │
 └─────────────────────────────────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────┐
 │               AutoPulse.Worker (.NET 11)                    │
-│              (тяжёлые задачи парсинга)                      │
+│              Умная очередь парсинга                         │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │         MassTransit Consumer (RabbitMQ)              │   │
+│  │  CarSearchQueueWorker                                │   │
 │  │  ┌────────────────────────────────────────────────┐  │   │
-│  │  │  AutohomeParser (Китай) + ParsedDataService   │  │   │
+│  │  │  Che168PlaywrightParser (Китай)               │  │   │
+│  │  │  MobileDeParser (Европа) - в разработке       │  │   │
+│  │  │  CarsComParser (США) - в разработке           │  │   │
 │  │  └────────────────────────────────────────────────┘  │   │
+│  │  Приоритеты: 10+ пользователей → каждые 15 мин       │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -64,11 +75,12 @@
 
 | Проект | Описание |
 |--------|----------|
-| **AutoPulse.Api** | HTTP API, контроллеры, endpoints |
-| **AutoPulse.Worker** | Фоновые задачи, парсинг, обработка данных |
-| **AutoPulse.Domain** | Доменные сущности, value objects |
-| **AutoPulse.Application** | Бизнес-логика, use cases, CQRS handlers |
-| **AutoPulse.Infrastructure** | EF Core, RabbitMQ, внешние сервисы |
+| **AutoPulse.Api** | Minimal API, JWT auth, user search endpoints |
+| **AutoPulse.Worker** | Умная очередь парсинга, фоновая обработка |
+| **AutoPulse.Domain** | User, UserSearch, CarSearchQueue, PriceHistory |
+| **AutoPulse.Application** | Бизнес-логика, CQRS (в разработке) |
+| **AutoPulse.Infrastructure** | EF Core, Playwright, Redis, RabbitMQ |
+| **AutoPulse.Parsing** | Che168PlaywrightParser, мобильная версия |
 
 ---
 
@@ -76,27 +88,30 @@
 
 ### Backend
 - **.NET 11** — основная платформа
-- **Clean Architecture** — чистая архитектура
-- **CQRS** — разделение команд и запросов
+- **Minimal API** — современные endpoints
 - **Entity Framework Core** — ORM
-- **MassTransit** — работа с очередями
 - **PostgreSQL** — основная БД
-- **Redis** — кэширование
-- **RabbitMQ** — асинхронная обработка
-- **Seq** — централизованное логирование
-- **Serilog** — логирование
-- **AngleSharp** — парсинг HTML
+- **Redis** — кэширование результатов
+- **RabbitMQ** — асинхронные задачи (опционально)
+- **SignalR** — real-time уведомления
+- **Serilog** — структурированное логирование
+- **JWT** — аутентификация
+
+### Парсинг
+- **Playwright 1.50** — headless браузер
+- **Mobile User-Agent** — доступ к мобильным версиям сайтов
+- **Умный скроллинг** — загрузка динамического контента
 
 ### Frontend (в разработке)
-- **Angular 19+** — фреймворк
-- **NgRx SignalStore** — управление состоянием
-- **Highcharts / Apache ECharts** — визуализация данных
-- **Bootstrap / Material** — UI компоненты
+- **Angular 21** — фреймворк
+- **Signals** — реактивное состояние
+- **Bootstrap 5** — UI компоненты
+- **RxJS** — реактивные потоки
 
 ### DevOps
 - **Docker** — контейнеризация
 - **Docker Compose** — оркестрация локально
-- **GitHub Actions** — CI/CD (планируется)
+- **GitHub Actions** — CI/CD
 
 ---
 
@@ -107,6 +122,7 @@
 - [.NET 11 SDK](https://dotnet.microsoft.com/download)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [Node.js 20+](https://nodejs.org) (для фронтенда)
+- [Playwright](https://playwright.dev) (устанавливается автоматически)
 
 ### 1. Запуск инфраструктуры
 
@@ -118,9 +134,15 @@ docker-compose up -d
 - PostgreSQL (порт 5432)
 - Redis (порт 6379)
 - RabbitMQ (порт 5672, UI: 15672)
-- Seq (порт 5341)
 
-### 2. Запуск API
+### 2. Применение миграций
+
+```bash
+cd src/AutoPulse.Infrastructure
+dotnet ef database update
+```
+
+### 3. Запуск API
 
 ```bash
 cd src/AutoPulse.Api
@@ -131,54 +153,112 @@ API доступен по адресу: `https://localhost:7001` / `http://local
 
 Swagger: `https://localhost:7001/swagger`
 
-### 3. Запуск Worker (парсинг)
+### 4. Запуск Worker (парсинг)
 
 ```bash
 cd src/AutoPulse.Worker
 dotnet run
 ```
 
-Worker слушает очередь `parse-cars-queue` и обрабатывает команды на парсинг.
-
-### 4. Отправка команды на парсинг
-
-Через RabbitMQ (UI: http://localhost:15672, guest/guest):
-- Exchange: (default)
-- Routing Key: parse-cars-queue
-- Message: `{"url": "https://www.autohome.com.cn/beijing/", "sourceName": "Autohome", "country": "China"}`
+Worker автоматически обрабатывает очередь парсинга.
 
 ---
 
-## 📊 Источники данных
+## 📊 API Endpoints
+
+### Авторизация
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| POST | `/api/auth/register` | Регистрация нового пользователя |
+| POST | `/api/auth/login` | Вход (получение JWT токена) |
+| GET | `/api/auth/me` | Получить текущий профиль |
+| PUT | `/api/auth/me` | Обновить профиль |
+
+### Поиск автомобилей
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/user/search` | Получить текущий поиск |
+| POST | `/api/user/search` | Сохранить поиск + запустить парсинг |
+| DELETE | `/api/user/search` | Удалить поиск |
+| GET | `/api/user/search/status` | Статус парсинга |
+
+### Автомобили
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/cars` | Список всех авто (пагинация) |
+| GET | `/api/cars/{id}` | Детали автомобиля |
+| GET | `/api/brands` | Список марок |
+| GET | `/api/models` | Список моделей |
+
+---
+
+## 🌍 Источники данных
 
 | Регион | Источник | Статус | URL |
 |--------|----------|--------|-----|
-| 🇨🇳 Китай | Autohome | ✅ Готово | www.autohome.com.cn |
+| 🇨🇳 Китай | Che168 (мобильная) | ✅ Готово | m.che168.com |
 | 🇺🇸 США | Cars.com | ⚪ В плане | www.cars.com |
 | 🇪🇺 Европа | Mobile.de | ⚪ В плане | www.mobile.de |
-| 🇰🇷 Корея | Encar | ⚪ В плане | www.encar.com |
 | 🇯🇵 Япония | Goo-net | ⚪ В плане | www.goo-net.com |
+
+---
+
+## 💡 Умная очередь парсинга
+
+### Как это работает:
+
+```
+Пользователь 1: Audi A3 (2015-2020)
+    ↓
+Проверка очереди: Есть ли уже такой запрос?
+    ├─ НЕТ → Создать CarSearchQueue → Парсинг → Результаты в БД
+    └─ ДА → Подписать пользователя на существующие данные
+    ↓
+Пользователь 2: Audi A3 (2016-2019)
+    ↓
+Проверка очереди: Уже есть Audi A3!
+    └─ ДА → Просто добавить в список ожидания → Priority++
+    ↓
+Результат: Один парсинг обслуживает обоих пользователей!
+```
+
+### Приоритеты парсинга:
+
+| Пользователей | Интервал парсинга |
+|---------------|-------------------|
+| 10+ | Каждые 15 мин |
+| 5-9 | Каждые 30 мин |
+| 2-4 | Каждый 1 час |
+| 1 | Каждые 2 часа |
 
 ---
 
 ## 📈 Roadmap
 
-### Q1 2026
+### Q1 2026 ✅
 - [x] Базовая структура решения
-- [ ] Настройка инфраструктуры (БД, очереди)
-- [ ] Базовые сущности (Car, Dealer, Brand, Model)
-- [ ] Парсер США (Cars.com)
+- [x] Умная очередь парсинга (UserSearch → CarSearchQueue)
+- [x] JWT авторизация и профиль
+- [x] API endpoints (/api/auth, /api/user/search)
+- [x] Che168PlaywrightParser (мобильная версия)
+- [ ] Миграции БД
+- [ ] Worker для обработки очереди
 
 ### Q2 2026
-- [ ] Парсер Европы и Азии
-- [ ] Аналитический модуль
-- [ ] Angular дашборд
-- [ ] Система уведомлений
+- [ ] Парсер Европы (Mobile.de)
+- [ ] Парсер США (Cars.com)
+- [ ] Angular дашборд (Auth, Search, Cars)
+- [ ] Real-time уведомления (SignalR)
+- [ ] Аналитика рынка
 
 ### Q3 2026
-- [ ] Мобильное приложение
+- [ ] Telegram бот для уведомлений
+- [ ] Email рассылки
+- [ ] Избранное и сравнение авто
 - [ ] ML-прогнозы цен
-- [ ] Экспорт отчётов (PDF, Excel)
 
 ---
 
@@ -208,17 +288,12 @@ GitHub: [@mrDeminAA](https://github.com/mrDeminAA)
 
 ---
 
-## 📬 Контакты
-
-- Email: (укажи при желании)
-- Telegram: (укажи при желании)
-
----
-
 <div align="center">
 
-**Made with ❤️ using .NET 11 & Angular**
+**Made with ❤️ using .NET 11, Angular 21 & Playwright**
 
 ⭐ Поставь звезду, если проект интересен!
+
+[![Concept](https://img.shields.io/badge/Concept-Audi%20A3%20Tracker-blue)](A3_TRACKER_CONCEPT.md)
 
 </div>
