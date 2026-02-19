@@ -29,7 +29,7 @@ createdb -U postgres autopulse
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=autopulse;Username=postgres;Password=adminsgesYfdkjnfk"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=autopulse;Username=postgres;Password=YOUR_PASSWORD"
   }
 }
 ```
