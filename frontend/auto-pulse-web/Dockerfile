@@ -1,29 +1,35 @@
-# Этап сборки
+# Stage 1: Build
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Копируем package files
-COPY frontend/auto-pulse-web/package*.json ./
+# Copy package files only
+COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN npm install
+# Install dependencies (fresh for Linux platform)
+RUN npm ci
 
-# Копируем исходный код
-COPY frontend/auto-pulse-web/ ./
+# Copy source code (excluding node_modules via .dockerignore)
+COPY . .
 
-# Собираем приложение
-RUN npm run build -- --configuration=production --base-href=/
+# Build the application
+RUN npm run build -- --configuration production
 
-# Этап запуска
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-# Копируем собранное приложение
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built application from build stage
 COPY --from=build /app/dist/auto-pulse-web/browser /usr/share/nginx/html
 
-# Копируем конфигурацию nginx
-COPY frontend/auto-pulse-web/nginx.conf /etc/nginx/conf.d/default.conf
-
+# Expose port 80
 EXPOSE 80
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

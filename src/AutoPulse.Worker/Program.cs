@@ -7,6 +7,7 @@ using AutoPulse.Infrastructure.Messaging;
 using AutoPulse.Parsing;
 using AutoPulse.Worker;
 using Serilog;
+using Microsoft.Playwright;
 
 // Bootstrap Serilog
 Log.Logger = new LoggerConfiguration()
@@ -77,11 +78,17 @@ try
     // Регистрация сервиса обработки данных
     builder.Services.AddScoped<IParsedDataService, ParsedDataService>();
 
+    // Регистрация сервиса конвертации валют
+    builder.Services.AddCurrencyConversion();
+
     // Регистрация Worker Health Service
     builder.Services.AddHostedService<WorkerHealthService>();
 
-    // Регистрация Car Parser Worker
+    // Регистрация Car Parser Worker (старый, для обратной совместимости)
     builder.Services.AddHostedService<CarParserWorker>();
+
+    // Регистрация Car Search Queue Worker (новый, с умной очередью)
+    builder.Services.AddCarSearchQueueWorker();
 
     var host = builder.Build();
 

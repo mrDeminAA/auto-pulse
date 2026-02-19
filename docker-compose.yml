@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:14-alpine
     container_name: autopulse-postgres
     ports:
       - "5432:5432"
@@ -115,8 +115,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/auto-pulse-web/Dockerfile
+      context: ./frontend/auto-pulse-web
+      dockerfile: Dockerfile
     container_name: autopulse-frontend
     ports:
       - "4200:80"

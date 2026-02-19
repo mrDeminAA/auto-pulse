@@ -16,6 +16,7 @@ public class Car
     public int Year { get; private set; }
     public decimal Price { get; private set; }
     public string Currency { get; private set; } = string.Empty;
+    public decimal? PriceRub { get; private set; } // Цена в рублях
     public string? Vin { get; private set; }
     public int Mileage { get; private set; } // в км
     public string? Transmission { get; private set; } // Automatic, Manual
@@ -83,6 +84,46 @@ public class Car
         CreatedAt = DateTime.UtcNow;
     }
 
+    public Car(
+        int brandId,
+        int modelId,
+        int marketId,
+        int year,
+        decimal price,
+        string currency,
+        decimal priceRub,
+        string sourceUrl,
+        int dataSourceId)
+    {
+        if (brandId <= 0)
+            throw new ArgumentException("ID марки должен быть положительным", nameof(brandId));
+
+        if (modelId <= 0)
+            throw new ArgumentException("ID модели должен быть положительным", nameof(modelId));
+
+        if (marketId <= 0)
+            throw new ArgumentException("ID рынка должен быть положительным", nameof(marketId));
+
+        if (year < 1900 || year > DateTime.UtcNow.Year + 1)
+            throw new ArgumentException("Некорректный год", nameof(year));
+
+        if (price < 0)
+            throw new ArgumentException("Цена должна быть положительной", nameof(price));
+
+        if (string.IsNullOrWhiteSpace(sourceUrl))
+            throw new ArgumentException("URL источника обязателен", nameof(sourceUrl));
+
+        BrandId = brandId;
+        ModelId = modelId;
+        MarketId = marketId;
+        Year = year;
+        Price = price;
+        Currency = currency.ToUpper();
+        SourceUrl = sourceUrl;
+        DataSourceId = dataSourceId;
+        CreatedAt = DateTime.UtcNow;
+    }
+
     public void SetVin(string? vin)
     {
         Vin = vin?.Trim();
@@ -145,12 +186,45 @@ public class Car
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdatePrice(decimal price)
+    public void UpdatePrice(decimal price, string? currency = null, decimal? priceRub = null)
     {
         if (price < 0)
             throw new ArgumentException("Цена должна быть положительной", nameof(price));
 
         Price = price;
+        if (currency != null)
+            Currency = currency.ToUpper();
+        if (priceRub.HasValue)
+            PriceRub = priceRub.Value;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetPriceRub(decimal priceRub)
+    {
+        PriceRub = priceRub;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateMileage(int mileage)
+    {
+        if (mileage < 0)
+            throw new ArgumentException("Пробег не может быть отрицательным", nameof(mileage));
+
+        Mileage = mileage;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateLocation(string location, string? country = null)
+    {
+        Location = location;
+        if (country != null)
+            Country = country;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateImageUrl(string imageUrl)
+    {
+        ImageUrl = imageUrl;
         UpdatedAt = DateTime.UtcNow;
     }
 }

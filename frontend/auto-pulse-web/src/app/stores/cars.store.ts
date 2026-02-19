@@ -1,8 +1,8 @@
-import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { inject } from '@angular/core';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
-import { CarDto } from '../models/dealer.model';
+import { CarDto, PagedResult } from '../models/dealer.model';
 import { CarsService } from '../services/cars.service';
 
 interface CarsState {
@@ -28,12 +28,12 @@ export const CarsStore = signalStore(
         tap(() => patchState(store, { loading: true, error: null })),
         switchMap(() => carsService.getAllCars(1, 50)),
         tap({
-          next: (result) => patchState(store, { 
-            cars: result.items, 
+          next: (result: PagedResult<CarDto>) => patchState(store, {
+            cars: result.items,
             totalCount: result.totalCount,
-            loading: false 
+            loading: false
           }),
-          error: (error) => patchState(store, { error: error.message, loading: false })
+          error: (error: Error) => patchState(store, { error: error.message, loading: false })
         })
       )
     )

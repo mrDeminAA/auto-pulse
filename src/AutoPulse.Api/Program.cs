@@ -4,6 +4,7 @@ using AutoPulse.Infrastructure;
 using AutoPulse.Infrastructure.Repositories;
 using AutoPulse.Application.Common.Interfaces;
 using AutoPulse.Application.Common.Mappings;
+using AutoPulse.Infrastructure.Services;
 using MassTransit;
 using AutoPulse.Api.Endpoints;
 using AutoPulse.Api.Services;
@@ -71,6 +72,9 @@ builder.Services.AddAuthentication(options =>
         )
     };
 });
+
+// Регистрация сервиса конвертации валют
+builder.Services.AddCurrencyConversion();
 
 // Регистрация AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);

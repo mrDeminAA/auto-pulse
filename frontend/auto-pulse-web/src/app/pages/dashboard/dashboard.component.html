@@ -1,0 +1,168 @@
+<div class="dashboard">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <svg class="logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 4L4 14V34L24 44L44 34V14L24 4Z" stroke="currentColor" stroke-width="2" fill="none"/>
+        <circle cx="24" cy="24" r="8" fill="currentColor"/>
+      </svg>
+      <h1 class="logo-text">AutoPulse</h1>
+    </div>
+    <div class="header-right">
+      <span class="user-name">{{ userName() }}</span>
+      <button class="logout-button" (click)="authStorePublic.logout()" title="Выйти">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="dashboard-content">
+    <div class="content-wrapper">
+      <!-- Welcome section -->
+      <section class="welcome-section">
+        <h2 class="welcome-title">Добро пожаловать, {{ user()?.name || user()?.email }}! 👋</h2>
+        <p class="welcome-subtitle">
+          Выберите марку и модель автомобиля для начала мониторинга
+        </p>
+      </section>
+
+      <!-- Stats cards -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon_cars">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+              <circle cx="6.5" cy="16.5" r="2.5"/>
+              <circle cx="16.5" cy="16.5" r="2.5"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalCars }}</span>
+            <span class="stat-label">Автомобилей найдено</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-icon_new">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.newToday }}</span>
+            <span class="stat-label">Новых за 24ч</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-icon_favorites">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.favorites }}</span>
+            <span class="stat-label">В избранном</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-icon_alerts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.alerts }}</span>
+            <span class="stat-label">Уведомлений</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Search status section -->
+      <section class="search-section">
+        <div class="section-header">
+          <h3 class="section-title">Мониторинг автомобилей</h3>
+          <a routerLink="/search" class="button button-primary">
+            @if (!userSearch) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Создать поиск
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Изменить
+            }
+          </a>
+        </div>
+
+        @if (loading) {
+          <div class="loading-card">
+            <div class="spinner"></div>
+            <span>Загрузка...</span>
+          </div>
+        } @else if (!userSearch) {
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <h4 class="empty-title">Поиск ещё не настроен</h4>
+            <p class="empty-text">
+              Выберите марку, модель и параметры автомобиля для начала мониторинга
+            </p>
+            <a routerLink="/search" class="button button-primary">Настроить поиск</a>
+          </div>
+        } @else {
+          <div class="search-status-card">
+            <div class="search-header">
+              <div class="search-info">
+                <span class="search-brand">{{ userSearch?.brandName }} {{ userSearch?.modelName }}</span>
+                <span class="search-params">
+                  {{ userSearch?.yearFrom }}–{{ userSearch?.yearTo }},
+                  {{ userSearch?.maxPrice || 'без ограничения' }} ₽
+                </span>
+              </div>
+              <span class="status-badge status-badge_{{ userSearch?.status?.toLowerCase() }}">
+                {{ getStatusLabel(userSearch?.status || '') }}
+              </span>
+            </div>
+            <div class="search-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="searchProgress"></div>
+              </div>
+              <span class="progress-text">Ожидание данных...</span>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Recent cars section (заготовка) -->
+      <section class="recent-section">
+        <div class="section-header">
+          <h3 class="section-title">Последние предложения</h3>
+          <a routerLink="/cars" class="button button-secondary">Все автомобили</a>
+        </div>
+        <div class="empty-state empty-state_small">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+            <circle cx="6.5" cy="16.5" r="2.5"/>
+            <circle cx="16.5" cy="16.5" r="2.5"/>
+          </svg>
+          <p class="empty-text">Здесь появятся найденные автомобили</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

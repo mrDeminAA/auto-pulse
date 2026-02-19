@@ -1,0 +1,141 @@
+<div class="search-page">
+  <div class="search-container">
+    <!-- Header -->
+    <header class="search-header">
+      <a routerLink="/dashboard" class="back-button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Назад
+      </a>
+      <h1 class="page-title">Настройка поиска</h1>
+    </header>
+
+    @if (loading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Загрузка текущих настроек...</span>
+      </div>
+    } @else {
+      <form class="search-form" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Brand & Model -->
+        <section class="form-section">
+          <h2 class="section-title">Автомобиль</h2>
+          
+          <div class="form-row form-row_2">
+            <div class="form-group">
+              <label class="form-label">Марка <span class="required">*</span></label>
+              <select class="form-select" [(ngModel)]="selectedBrandId" (change)="onBrandChange()" name="brand">
+                <option [ngValue]="null">Выберите марку</option>
+                @for (brand of brands; track brand.id) {
+                  <option [ngValue]="brand.id">{{ brand.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Модель <span class="required">*</span></label>
+              <select class="form-select" [(ngModel)]="selectedModelId" name="model" [disabled]="!selectedBrandId">
+                <option [ngValue]="null">Выберите модель</option>
+                @for (model of models; track model.id) {
+                  <option [ngValue]="model.id">{{ model.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Поколение</label>
+            <select class="form-select" [(ngModel)]="selectedGeneration" name="generation">
+              <option value="">Не выбрано</option>
+              @for (gen of generations; track gen.value) {
+                <option [value]="gen.value">{{ gen.label }}</option>
+              }
+            </select>
+          </div>
+        </section>
+
+        <!-- Year & Price -->
+        <section class="form-section">
+          <h2 class="section-title">Параметры</h2>
+          
+          <div class="form-row form-row_2">
+            <div class="form-group">
+              <label class="form-label">Год от</label>
+              <input type="number" class="form-input" [(ngModel)]="yearFrom" name="yearFrom" 
+                     placeholder="2015" min="1990" max="2024">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Год до</label>
+              <input type="number" class="form-input" [(ngModel)]="yearTo" name="yearTo" 
+                     placeholder="2024" min="1990" max="2024">
+            </div>
+          </div>
+
+          <div class="form-row form-row_2">
+            <div class="form-group">
+              <label class="form-label">Макс. цена, ₽</label>
+              <input type="number" class="form-input" [(ngModel)]="maxPrice" name="maxPrice" 
+                     placeholder="2 500 000" min="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Макс. пробег, км</label>
+              <input type="number" class="form-input" [(ngModel)]="maxMileage" name="maxMileage" 
+                     placeholder="150 000" min="0">
+            </div>
+          </div>
+        </section>
+
+        <!-- Regions -->
+        <section class="form-section">
+          <h2 class="section-title">Регионы поиска</h2>
+          <div class="regions-grid">
+            @for (region of regions; track region.id) {
+              <div 
+                class="region-card" 
+                [class.region-card_selected]="selectedRegions.includes(region.id)"
+                (click)="toggleRegion(region.id)"
+              >
+                <span class="region-flag">{{ region.flag }}</span>
+                <span class="region-name">{{ region.name }}</span>
+                <svg class="region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- Error -->
+        @if (error) {
+          <div class="error-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{{ error }}</span>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="button button-secondary" (click)="onCancel()">
+            Отмена
+          </button>
+          <button type="submit" class="button button-primary" [disabled]="!isValid || saving">
+            @if (saving) {
+              <svg class="spinner spinner_small" viewBox="0 0 24 24">
+                <circle class="spinner-circle" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+              </svg>
+            }
+            {{ selectedBrandId && selectedModelId ? 'Сохранить и начать поиск' : 'Выберите марку и модель' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>
