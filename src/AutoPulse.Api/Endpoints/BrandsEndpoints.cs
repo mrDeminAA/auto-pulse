@@ -35,6 +35,66 @@ public static class BrandsEndpoints
         .WithSummary("Получить список всех брендов")
         .Produces<List<BrandDto>>(StatusCodes.Status200OK);
 
+        // POST /api/brands/seed - добавить seed данные (только для разработки)
+        group.MapPost("/seed", async (ApplicationDbContext db, CancellationToken ct) =>
+        {
+            // Проверяем есть ли уже данные
+            if (await db.Brands.AnyAsync(ct))
+                return Results.Ok(new { message = "Данные уже существуют" });
+
+            // Добавляем бренды
+            var brands = new[]
+            {
+                new Brand("Audi", "Germany"),
+                new Brand("BMW", "Germany"),
+                new Brand("Mercedes-Benz", "Germany"),
+                new Brand("Volkswagen", "Germany"),
+                new Brand("Toyota", "Japan"),
+                new Brand("Honda", "Japan"),
+                new Brand("Nissan", "Japan"),
+                new Brand("Mazda", "Japan"),
+                new Brand("Lexus", "Japan"),
+                new Brand("Porsche", "Germany")
+            };
+            db.Brands.AddRange(brands);
+            await db.SaveChangesAsync(ct);
+
+            // Добавляем модели для Audi (ID=1)
+            var audiModels = new[]
+            {
+                new Model(1, "A3", "Compact"),
+                new Model(1, "A4", "Mid-size"),
+                new Model(1, "A4L", "Mid-size LWB"),
+                new Model(1, "A6", "Executive"),
+                new Model(1, "A6L", "Executive LWB"),
+                new Model(1, "Q5", "Compact SUV"),
+                new Model(1, "Q7", "Full-size SUV"),
+                new Model(1, "A5", "Compact Executive"),
+                new Model(1, "Q3", "Subcompact SUV"),
+                new Model(1, "e-tron", "Electric SUV")
+            };
+            db.Models.AddRange(audiModels);
+
+            // Добавляем модели для BMW (ID=2)
+            var bmwModels = new[]
+            {
+                new Model(2, "3 Series", "Compact Executive"),
+                new Model(2, "5 Series", "Executive"),
+                new Model(2, "7 Series", "Full-size Luxury"),
+                new Model(2, "X3", "Compact SUV"),
+                new Model(2, "X5", "Mid-size SUV"),
+                new Model(2, "X7", "Full-size SUV")
+            };
+            db.Models.AddRange(bmwModels);
+
+            await db.SaveChangesAsync(ct);
+
+            return Results.Ok(new { message = "Seed данные добавлены", brands = brands.Length });
+        })
+        .WithName("SeedBrands")
+        .WithSummary("Добавить seed данные (Dev)")
+        .Produces(StatusCodes.Status200OK);
+
         // GET /api/brands/{id}
         group.MapGet("/{id:int}", async (int id, ApplicationDbContext db, CancellationToken ct) =>
         {

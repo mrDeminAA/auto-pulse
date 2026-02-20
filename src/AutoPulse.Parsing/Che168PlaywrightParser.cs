@@ -38,12 +38,35 @@ public class Che168PlaywrightParser
             try
             {
                 // Формируем URL для мобильной версии
-                var url = pageIndex == 1 
-                    ? "https://m.che168.com/carlist/index?pvareaid=111478" 
-                    : $"https://m.che168.com/carlist/index?pvareaid=111478&page={pageIndex}";
+                // Если brandUrl содержит конкретный бренд/модель, используем его
+                var url = brandUrl.Contains("carlist/") && brandUrl.Contains(".com")
+                    ? (pageIndex == 1 ? brandUrl : $"{brandUrl}&page={pageIndex}")
+                    : (pageIndex == 1
+                        ? "https://m.che168.com/carlist/index?pvareaid=111478"
+                        : $"https://m.che168.com/carlist/index?pvareaid=111478&page={pageIndex}");
 
-                // Переходим на страницу
-                await page.GotoAsync(url, new() { WaitUntil = WaitUntilState.Load, Timeout = 120000 });
+                _logger.LogInformation("Переход на URL: {Url}", url);
+
+                // Переходим на страницу и ждём полной загрузки
+                var response = await page.GotoAsync(url, new() { WaitUntil = WaitUntilState.NetworkIdle, Timeout = 120000 });
+                
+                // Проверяем статус ответа
+                if (response != null && response.Status >= 400)
+                {
+                    _logger.LogError("Ошибка HTTP {Status}: {Url}", response.Status, url);
+                    return new List<ParsedCarData>();
+                }
+
+                // Ждём появления контента (автомобилей или хотя бы названий)
+                try
+                {
+                    await page.WaitForSelectorAsync("div[class*='car']", new() { Timeout = 30000 });
+                    _logger.LogInformation("Элементы автомобилей найдены");
+                }
+                catch (TimeoutException)
+                {
+                    _logger.LogWarning("Таймаут ожидания элементов автомобилей. Пробуем получить текст...");
+                }
 
                 // Ждём загрузки контента через скроллинг
                 for (int i = 0; i < 8; i++)
@@ -56,11 +79,14 @@ public class Che168PlaywrightParser
                     var text = await page.EvaluateAsync<string>("() => document.body.innerText");
                     _logger.LogDebug("Загрузка {Iteration}: {Length} символов", i + 1, text?.Length ?? 0);
 
-                    if ((text?.Length ?? 0) > 1000) break;
+                    // Если получили достаточно контента — прекращаем
+                    if ((text?.Length ?? 0) > 5000) break;
                 }
 
                 // Получаем текст и изображения
                 var pageText = await page.EvaluateAsync<string>("() => document.body.innerText");
+                _logger.LogInformation("Получено текста: {Length} символов", pageText?.Length ?? 0);
+                
                 var cars = ParseCarsFromText(pageText ?? "");
 
                 // Получаем изображения отдельно

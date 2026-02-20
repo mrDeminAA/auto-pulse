@@ -5,7 +5,6 @@ using AutoPulse.Parsing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Playwright;
 
 namespace AutoPulse.Worker;
 
@@ -18,8 +17,6 @@ public class CarSearchQueueWorker : BackgroundService
     private readonly ILogger<CarSearchQueueWorker> _logger;
     private readonly IConfiguration _configuration;
     private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
-    private IPlaywright? _playwright;
-    private IBrowser? _browser;
 
     public CarSearchQueueWorker(
         IServiceProvider serviceProvider,
@@ -35,57 +32,18 @@ public class CarSearchQueueWorker : BackgroundService
     {
         _logger.LogInformation("Car Search Queue Worker запущен");
 
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
-            // Инициализируем Playwright один раз
-            await InitializeBrowserAsync(stoppingToken);
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    await ProcessQueueAsync(stoppingToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Критическая ошибка в цикле обработки очереди");
-                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
-                }
+                await ProcessQueueAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Критическая ошибка в цикле обработки очереди");
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
         }
-        finally
-        {
-            await CleanupAsync();
-        }
-    }
-
-    private async Task InitializeBrowserAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Инициализация Playwright...");
-
-        _playwright = await Playwright.CreateAsync();
-        
-        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-        {
-            Headless = true,
-            Args = new[] { "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage" }
-        });
-
-        _logger.LogInformation("Playwright инициализирован");
-    }
-
-    private async Task CleanupAsync()
-    {
-        _logger.LogInformation("Очистка ресурсов...");
-        
-        if (_browser != null)
-        {
-            await _browser.CloseAsync();
-        }
-        
-        _playwright?.Dispose();
-        
-        _logger.LogInformation("Ресурсы очищены");
     }
 
     private async Task ProcessQueueAsync(CancellationToken cancellationToken)
@@ -99,7 +57,7 @@ public class CarSearchQueueWorker : BackgroundService
             .Include(q => q.Brand)
             .Include(q => q.Model)
             .Include(q => q.UserSearches)
-            .Where(q => q.Status == QueueStatus.Pending || 
+            .Where(q => q.Status == QueueStatus.Pending ||
                        (q.Status == QueueStatus.Completed && q.NextParseAt <= DateTime.UtcNow))
             .OrderByDescending(q => q.Priority)
             .Take(10)
@@ -147,27 +105,33 @@ public class CarSearchQueueWorker : BackgroundService
 
         try
         {
-            // Создаём парсер
-            var parserLogger = _serviceProvider.GetRequiredService<ILogger<Che168PlaywrightParser>>();
-            var parser = new Che168PlaywrightParser(_browser!, parserLogger);
-
-            // Формируем URL для парсинга
-            var brandSlug = GetBrandSlug(queue.Brand?.Name);
-            var modelSlug = GetModelSlug(queue.Model?.Name);
+            // Определяем brand ID для API
+            var brandId = GetBrandIdForApi(queue.Brand?.Name);
             
-            if (string.IsNullOrEmpty(brandSlug) || string.IsNullOrEmpty(modelSlug))
+            if (string.IsNullOrEmpty(brandId))
             {
-                _logger.LogWarning("Не удалось определить slug для бренда/модели");
-                queue.FailParsing("Неверные параметры бренда или модели");
+                _logger.LogWarning("Не найден Brand ID для {Brand}", queue.Brand?.Name);
+                queue.FailParsing("Неверный бренд");
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return;
             }
 
-            var baseUrl = $"https://m.che168.com/carlist/{brandSlug}/{modelSlug}/";
+            // Создаём API парсер
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+            };
+            var httpClient = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            };
             
-            // Парсим автомобили
+            var parserLogger = _serviceProvider.GetRequiredService<ILogger<Che168ApiParser>>();
+            var parser = new Che168ApiParser(httpClient, parserLogger);
+
+            // Парсим автомобили через API
             var cars = new List<ParsedCarData>();
-            await foreach (var car in parser.ParseAllAsync(baseUrl, 10, 50, cancellationToken))
+            await foreach (var car in parser.ParseAllAsync(brandId, 10, cancellationToken))
             {
                 // Фильтруем по году
                 if (car.Year >= queue.YearFrom && car.Year <= queue.YearTo)
@@ -204,6 +168,29 @@ public class CarSearchQueueWorker : BackgroundService
         {
             await dbContext.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    private string? GetBrandIdForApi(string? brandName)
+    {
+        if (string.IsNullOrEmpty(brandName))
+            return null;
+
+        // Brand ID для API che168
+        var brandIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Audi", "33" },
+            { "BMW", "56" },
+            { "Mercedes-Benz", "57" },
+            { "Volkswagen", "60" },
+            { "Toyota", "54" },
+            { "Honda", "59" },
+            { "Nissan", "55" },
+            { "Mazda", "66" },
+            { "Lexus", "65" },
+            { "Porsche", "61" }
+        };
+
+        return brandIds.TryGetValue(brandName, out var id) ? id : null;
     }
 
     private string? GetBrandSlug(string? brandName)

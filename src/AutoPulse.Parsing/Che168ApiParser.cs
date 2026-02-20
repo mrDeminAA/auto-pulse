@@ -1,5 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace AutoPulse.Parsing;
@@ -15,6 +17,9 @@ public class Che168ApiParser
 
     // API endpoint
     private const string ApiBaseUrl = "https://api2scsou.che168.com/api/v11/search";
+    
+    // Secret key для генерации подписи (нужно найти реальный)
+    private const string ApiSecretKey = "2sc_m_app_secret_key_2024";
 
     // Brand IDs
     public static class BrandIds
@@ -125,9 +130,22 @@ public class Che168ApiParser
 
     private string BuildApiUrl(string brandId, int pageIndex, int pageSize)
     {
-        // Минимально необходимые параметры
+        // Все необходимые параметры для API
         var parameters = new Dictionary<string, string>
         {
+            { "pid", "0" },
+            { "cid", "0" },
+            { "frompage", "5" },
+            { "pvareaid", "0" },
+            { "otherstatisticsext", "%7B%22history%22%3A%22%E5%88%97%E8%A1%A8%E9%A1%B5%22%2C%22pvareaid%22%3A%220%22%7D" },
+            { "pagesource", "search" },
+            { "deviceid", GenerateDeviceId() },
+            { "userid", "0" },
+            { "s_pid", "0" },
+            { "s_cid", "0" },
+            { "_appid", "2sc.m" },
+            { "v", "11.41.5" },
+            { "_subappid", "" },
             { "pageindex", pageIndex.ToString() },
             { "pagesize", pageSize.ToString() },
             { "brandid", brandId },
@@ -135,7 +153,6 @@ public class Che168ApiParser
             { "ishideback", "1" },
             { "srecom", "2" },
             { "personalizedpush", "1" },
-            { "cid", "0" },
             { "car_area", "1" },
             { "iscxcshowed", "-1" },
             { "scene_no", "12" },
@@ -143,19 +160,47 @@ public class Che168ApiParser
             { "testtype", "X" },
             { "test102223", "X" },
             { "filtertype", "0" },
-            { "ssnew", "1" },
-            { "deviceid", "d9457747-2d23-638c-041b-83eba3487cfe" },
-            { "userid", "0" },
-            { "s_pid", "0" },
-            { "s_cid", "0" },
-            { "_appid", "2sc.m" },
-            { "_subappid", "" },
-            { "v", "11.41.5" }
-            // _sign не добавляем - он динамический
+            { "ssnew", "1" }
         };
+
+        // Генерируем подпись
+        var sign = GenerateSignature(parameters);
+        parameters["_sign"] = sign;
 
         var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
         return $"{ApiBaseUrl}?{queryString}";
+    }
+    
+    /// <summary>
+    /// Генерация подписи для API запроса
+    /// </summary>
+    private string GenerateSignature(Dictionary<string, string> parameters)
+    {
+        // Сортируем параметры по ключу
+        var sortedParams = parameters
+            .Where(kvp => kvp.Key != "_sign") // Исключаем саму подпись
+            .OrderBy(kvp => kvp.Key)
+            .Select(kvp => $"{kvp.Key}={kvp.Value}");
+        
+        // Соединяем параметры
+        var paramString = string.Join("&", sortedParams);
+        
+        // Добавляем secret key
+        var signString = paramString + ApiSecretKey;
+        
+        // Генерируем MD5 хеш
+        using var md5 = MD5.Create();
+        var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(signString));
+        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+    }
+    
+    /// <summary>
+    /// Генерация уникального device ID
+    /// </summary>
+    private string GenerateDeviceId()
+    {
+        // Используем фиксированный ID для сессии
+        return "20AFCA6F-2E3D-4627-9D07-F3E7D87C367F";
     }
 
     private List<ParsedCarData> ParseCarList(List<Che168CarDto>? carList)

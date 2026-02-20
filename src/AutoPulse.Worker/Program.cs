@@ -84,8 +84,8 @@ try
     // Регистрация Worker Health Service
     builder.Services.AddHostedService<WorkerHealthService>();
 
-    // Регистрация Car Parser Worker (старый, для обратной совместимости)
-    builder.Services.AddHostedService<CarParserWorker>();
+    // Регистрация Car Parser Worker (старый, для обратной совместимости) - ОТКЛЮЧЕН
+    // builder.Services.AddHostedService<CarParserWorker>();
 
     // Регистрация Car Search Queue Worker (новый, с умной очередью)
     builder.Services.AddCarSearchQueueWorker();

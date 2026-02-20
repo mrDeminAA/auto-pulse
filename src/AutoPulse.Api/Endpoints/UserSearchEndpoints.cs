@@ -92,7 +92,7 @@ public static class UserSearchEndpoints
                 existingSearch.SetStatus(SearchStatus.Active);
                 existingSearch.UpdateTimestamp();
 
-                logger.LogInformation("Обновлён поиск пользователя {UserId}: Brand={BrandId}, Model={ModelId}", 
+                logger.LogInformation("Обновлён поиск пользователя {UserId}: Brand={BrandId}, Model={ModelId}",
                     userId, request.BrandId, request.ModelId);
             }
             else
@@ -111,14 +111,16 @@ public static class UserSearchEndpoints
                 );
                 db.UserSearchs.Add(userSearch);
 
-                logger.LogInformation("Создан новый поиск пользователя {UserId}: Brand={BrandId}, Model={ModelId}", 
+                logger.LogInformation("Создан новый поиск пользователя {UserId}: Brand={BrandId}, Model={ModelId}",
                     userId, request.BrandId, request.ModelId);
             }
 
             await db.SaveChangesAsync(ct);
 
-            // Добавляем в очередь на парсинг
-            await AddToQueueAsync(db, userId.Value, request, ct);
+            // Добавляем в очередь на парсинг (передаем UserSearch.Id)
+            var userSearchId = existingSearch?.Id ?? db.UserSearchs
+                .FirstOrDefault(us => us.UserId == userId.Value)!.Id;
+            await AddToQueueAsync(db, userSearchId, request, ct);
 
             return Results.Ok(new { message = "Поиск сохранён, парсинг запущен" });
         })
@@ -199,7 +201,7 @@ public static class UserSearchEndpoints
 
     private static async Task AddToQueueAsync(
         ApplicationDbContext db,
-        int userId,
+        int userSearchId,
         UserSearchRequest request,
         CancellationToken ct)
     {
@@ -217,16 +219,16 @@ public static class UserSearchEndpoints
         {
             // Уже есть такая задача - увеличиваем приоритет
             existingQueue.IncrementPriority();
-            
-            // Проверяем есть ли связь с этим пользователем
+
+            // Проверяем есть ли связь с этим поиском
             var existingLink = await db.UserSearchQueues
-                .FirstOrDefaultAsync(l => 
-                    l.UserSearchId == userId && 
+                .FirstOrDefaultAsync(l =>
+                    l.UserSearchId == userSearchId &&
                     l.CarSearchQueueId == existingQueue.Id, ct);
-            
+
             if (existingLink == null)
             {
-                db.UserSearchQueues.Add(new UserSearchQueue(userId, existingQueue.Id));
+                db.UserSearchQueues.Add(new UserSearchQueue(userSearchId, existingQueue.Id));
             }
         }
         else
@@ -242,12 +244,12 @@ public static class UserSearchEndpoints
                 request.Generation
             );
             db.CarSearchQueues.Add(newQueue);
-            
+
             // Сохраняем чтобы получить ID
             await db.SaveChangesAsync(ct);
-            
+
             // Создаём связь
-            db.UserSearchQueues.Add(new UserSearchQueue(userId, newQueue.Id));
+            db.UserSearchQueues.Add(new UserSearchQueue(userSearchId, newQueue.Id));
         }
 
         await db.SaveChangesAsync(ct);
