@@ -51,11 +51,43 @@ public static class ParsingServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Добавить парсер Mobile.de (Европа)
+    /// </summary>
+    public static IServiceCollection AddMobileDeParser(this IServiceCollection services)
+    {
+        services.AddSingleton<MobileDeParser>(sp =>
+        {
+            var browser = sp.GetRequiredService<IBrowser>();
+            var logger = sp.GetRequiredService<ILogger<MobileDeParser>>();
+            return new MobileDeParser(browser, logger);
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Добавить парсер Cars.com (США)
+    /// </summary>
+    public static IServiceCollection AddCarsComParser(this IServiceCollection services)
+    {
+        services.AddSingleton<CarsComParser>(sp =>
+        {
+            var browser = sp.GetRequiredService<IBrowser>();
+            var logger = sp.GetRequiredService<ILogger<CarsComParser>>();
+            return new CarsComParser(browser, logger);
+        });
+
+        return services;
+    }
+
+    /// <summary>
     /// Добавить все парсеры
     /// </summary>
     public static IServiceCollection AddParsers(this IServiceCollection services)
     {
         services.AddChe168Parser();
+        services.AddMobileDeParser();
+        services.AddCarsComParser();
         return services;
     }
 }

@@ -80,7 +80,7 @@
 | **AutoPulse.Domain** | User, UserSearch, CarSearchQueue, PriceHistory |
 | **AutoPulse.Application** | Бизнес-логика, CQRS (в разработке) |
 | **AutoPulse.Infrastructure** | EF Core, Playwright, Redis, RabbitMQ |
-| **AutoPulse.Parsing** | Che168PlaywrightParser, мобильная версия |
+| **AutoPulse.Parsing** | Che168PlaywrightParser (Китай), MobileDeParser (Европа), CarsComParser (США) |
 
 ---
 
@@ -204,9 +204,9 @@ Worker автоматически обрабатывает очередь пар
 
 | Регион | Источник | Статус | URL |
 |--------|----------|--------|-----|
-| Китай | Che168 (мобильная) | Готово | m.che168.com |
-| США | Cars.com | В плане | www.cars.com |
-| Европа | Mobile.de | В плане | www.mobile.de |
+| Китай | Che168 (мобильная) | ✅ Готово | m.che168.com |
+| Европа | Mobile.de | ✅ Готово | www.mobile.de |
+| США | Cars.com | ✅ Готово | www.cars.com |
 | Япония | Goo-net | В плане | www.goo-net.com |
 
 ---
