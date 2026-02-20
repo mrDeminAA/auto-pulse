@@ -5,42 +5,69 @@
       <a routerLink="/" class="main-nav__logo">
         <span class="main-nav__logo-text">AutoPulse</span>
       </a>
-      
-      <ul class="main-nav__list">
-        <li class="main-nav__item">
-          <a routerLink="/cars" routerLinkActive="main-nav__link_active" class="main-nav__link">
-            Автомобили
-          </a>
-        </li>
-        <li class="main-nav__item">
-          <a routerLink="/markets" routerLinkActive="main-nav__link_active" class="main-nav__link">
-            Рынки
-          </a>
-        </li>
-        <li class="main-nav__item">
-          <a routerLink="/dealers" routerLinkActive="main-nav__link_active" class="main-nav__link">
-            Дилеры
-          </a>
-        </li>
-        <!-- Заготовка: Услуги -->
-        <li class="main-nav__item main-nav__item_has-submenu">
-          <span class="main-nav__link main-nav__link_submenu" title="Скоро">
-            Услуги
-            <svg class="main-nav__arrow" width="12" height="12" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+
+      @if (isAuthenticated()) {
+        <!-- Меню для авторизованных -->
+        <ul class="main-nav__list">
+          <li class="main-nav__item">
+            <a routerLink="/dashboard" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Дашборд
+            </a>
+          </li>
+          <li class="main-nav__item">
+            <a routerLink="/cars" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Автомобили
+            </a>
+          </li>
+          <li class="main-nav__item">
+            <a routerLink="/markets" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Рынки
+            </a>
+          </li>
+          <li class="main-nav__item">
+            <a routerLink="/dealers" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Дилеры
+            </a>
+          </li>
+        </ul>
+
+        <!-- Профиль пользователя -->
+        <div class="main-nav__user">
+          <span class="main-nav__user-name">{{ userName() }}</span>
+          <button class="main-nav__logout" (click)="logout()" title="Выйти">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-          </span>
-        </li>
-        <!-- Заготовка: Аналитика -->
-        <li class="main-nav__item main-nav__item_has-submenu">
-          <span class="main-nav__link main-nav__link_submenu" title="Скоро">
-            Аналитика
-            <svg class="main-nav__arrow" width="12" height="12" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-            </svg>
-          </span>
-        </li>
-      </ul>
+          </button>
+        </div>
+      } @else {
+        <!-- Меню для гостей -->
+        <ul class="main-nav__list">
+          <li class="main-nav__item">
+            <a routerLink="/cars" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Автомобили
+            </a>
+          </li>
+          <li class="main-nav__item">
+            <a routerLink="/markets" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Рынки
+            </a>
+          </li>
+          <li class="main-nav__item">
+            <a routerLink="/dealers" routerLinkActive="main-nav__link_active" class="main-nav__link">
+              Дилеры
+            </a>
+          </li>
+        </ul>
+
+        <!-- Кнопки входа -->
+        <div class="main-nav__auth">
+          <a routerLink="/login" class="main-nav__button main-nav__button_secondary">Войти</a>
+          <a routerLink="/register" class="main-nav__button main-nav__button_primary">Регистрация</a>
+        </div>
+      }
     </div>
   </div>
 </nav>

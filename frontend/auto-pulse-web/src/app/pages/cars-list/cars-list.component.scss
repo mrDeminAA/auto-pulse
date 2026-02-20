@@ -1,15 +1,15 @@
-// Цветовые переменные (в стиле trudvsem.ru)
-$primary-blue: #0056b3;
-$primary-dark: #003d82;
-$primary-light: #e8f0fe;
+// Цветовые переменные (черно-белый стиль)
+$primary-black: #000000;
+$primary-dark: #1a1a1a;
+$primary-light: #f5f5f5;
 $accent-red: #d32f2f;
 $accent-orange: #ff6b00;
-$bg-light: #f5f7fa;
+$bg-light: #fafafa;
 $bg-white: #ffffff;
-$border-color: #e0e3e8;
-$text-primary: #2c3e50;
-$text-secondary: #6c757d;
-$text-muted: #95a5a6;
+$border-color: #e0e0e0;
+$text-primary: #000000;
+$text-secondary: #666666;
+$text-muted: #999999;
 $success-green: #28a745;
 $error-red: #dc3545;
 $shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -42,7 +42,7 @@ $radius-lg: 12px;
   color: $text-primary;
   margin: 0 0 16px 0;
   padding-bottom: 16px;
-  border-bottom: 2px solid $primary-blue;
+  border-bottom: 2px solid $text-primary;
 }
 
 // Вкладки
@@ -64,14 +64,14 @@ $radius-lg: 12px;
 
     &:hover:not(:disabled) {
       background: $primary-light;
-      border-color: $primary-blue;
-      color: $primary-blue;
+      border-color: \$primary-black;
+      color: \$primary-black;
     }
 
     &.tabs__item_active {
-      background: $primary-blue;
-      border-color: $primary-blue;
-      color: white;
+      background: $primary-black;
+      border-color: $primary-black;
+      color: #ffffff;
     }
 
     &:disabled {
@@ -170,7 +170,7 @@ $radius-lg: 12px;
 
   &:hover {
     box-shadow: $shadow-md;
-    border-color: $primary-blue;
+    border-color: \$primary-black;
     transform: translateY(-2px);
   }
 
@@ -264,7 +264,7 @@ $radius-lg: 12px;
   &__price {
     font-size: 24px;
     font-weight: 700;
-    color: $primary-blue;
+    color: \$primary-black;
     margin: 8px 0;
   }
 
@@ -391,7 +391,7 @@ $radius-lg: 12px;
   width: 40px;
   height: 40px;
   border: 3px solid $border-color;
-  border-top-color: $primary-blue;
+  border-top-color: \$primary-black;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto;
@@ -475,7 +475,7 @@ $radius-lg: 12px;
 
   &.button_plain {
     background: transparent;
-    color: $primary-blue;
+    color: \$primary-black;
 
     &:hover {
       background: $primary-light;
@@ -529,7 +529,7 @@ $radius-lg: 12px;
 
   &:focus {
     outline: none;
-    border-color: $primary-blue;
+    border-color: \$primary-black;
   }
 }
 
@@ -546,7 +546,7 @@ $radius-lg: 12px;
 
   &:focus {
     outline: none;
-    border-color: $primary-blue;
+    border-color: \$primary-black;
   }
 
   &.input_small {

@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../stores/auth.store';
 import { UserSearchService } from '../../services/user-search.service';
 import { UserSearchResponse } from '../../models/user-search.model';
+import { DashboardLayoutComponent } from '../../shared/components/dashboard-layout/dashboard-layout.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, DashboardLayoutComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -79,5 +80,21 @@ export class DashboardComponent implements OnInit {
       'Cancelled': 'Отменён'
     };
     return labels[status] || status;
+  }
+
+  getParsingStatus(): { text: string; class: string } {
+    if (!this.userSearch) return { text: '', class: '' };
+    
+    // Здесь будет реальная логика статуса парсинга
+    // Пока заглушка с разными вариантами
+    return {
+      text: 'Идёт парсинг источников...',
+      class: 'parsing'
+    };
+  }
+
+  getProgressPercentage(): number {
+    // Заглушка — будет реальное значение от Worker
+    return Math.floor(Math.random() * 30);
   }
 }

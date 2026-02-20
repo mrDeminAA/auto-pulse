@@ -1,5 +1,5 @@
-import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { computed, inject, effect } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState, withHooks } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -24,6 +24,21 @@ const initialState: AuthState = {
 export const AuthStore = signalStore(
   { providedIn: 'root' },
   withState<AuthState>(initialState),
+  withHooks({
+    onInit(store) {
+      // Загружаем пользователя из localStorage при старте
+      const authService = inject(AuthService);
+      const user = authService.getUser();
+      const token = authService.getToken();
+      if (user && token && authService.isAuthenticated()) {
+        patchState(store, {
+          user,
+          token,
+          isAuthenticated: true
+        });
+      }
+    }
+  }),
   withComputed((store) => ({
     userName: computed(() => store.user()?.name || store.user()?.email || 'Гость'),
     userEmail: computed(() => store.user()?.email || '')

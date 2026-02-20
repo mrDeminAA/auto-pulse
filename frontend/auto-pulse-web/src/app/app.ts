@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthStore } from './stores/auth.store';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,12 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('AutoPulse');
+  protected readonly authStore = inject(AuthStore);
+  
+  protected readonly isAuthenticated = this.authStore.isAuthenticated;
+  protected readonly userName = this.authStore.userName;
+
+  protected logout(): void {
+    this.authStore.logout();
+  }
 }
